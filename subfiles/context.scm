@@ -5,6 +5,14 @@
              (list 0.1 1))
 (set-revision-date 2009 9 7)
 
+; Naive implementation of letrec* from Ghuloum's "Fixing Letrec (reloaded)"
+(define-syntax letrec*
+  (syntax-rules ()
+    ((_ ((var init) ...) b b* ...)
+     (let ((var #f) ...)
+       (set! var init) ...
+       (let () b b* ...)))))
+
 ;;;;;;;;;;;;
 ; contexts ;
 ;;;;;;;;;;;;
@@ -102,7 +110,7 @@
   (lambda (error-handler)
     (call-with-current-continuation
       (lambda (c)
-        (letrec ((receiver
+        (letrec* ((receiver
                    (lambda ignore (c normal-context)))
                  (alist
                    (make-top-level-dynamic-alist))
