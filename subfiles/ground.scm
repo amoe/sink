@@ -230,7 +230,7 @@
                       (set! okay #f)))))
     (if okay
         (begin
-          (eval (list->kernel-list '(load "subfiles/library.snk"))
+          (eval (list->kernel-list '(load "library.snk"))
                 ground-environment context)
           (remove-bindings! ground-environment
                             '$set-version

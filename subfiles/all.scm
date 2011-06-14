@@ -16,25 +16,25 @@
 ; MzScheme) should use a batch file such as "sink.bat".
 ;
 
-(load "subfiles/revision.scm")      ; mechanism for tracking revision and date
-(load "subfiles/eval.scm")          ; evaluator central logic
-(load "subfiles/interpreter.scm")   ; interpreter top level
-(load "subfiles/boolean.scm")       ; booleans
-(load "subfiles/object.scm")        ; encapsulated objects
-(load "subfiles/applicative.scm")   ;   applicatives              (uses object)
-(load "subfiles/context.scm")       ;   continuations             (uses object)
-(load "subfiles/encapsulation.scm") ;   encapsulation types       (uses object)
-(load "subfiles/environment.scm")   ;   environments              (uses object)
-(load "subfiles/error.scm")         ;   error descriptors         (uses object)
-(load "subfiles/ignore.scm")        ;   ignore                    (uses object)
-(load "subfiles/inert.scm")         ;   inert                     (uses object)
-(load "subfiles/kernel-pair.scm")   ;   pairs                     (uses object)
-(load "subfiles/keyed.scm")         ;   keyed variables           (uses object)
-(load "subfiles/number.scm")        ;   number                    (uses object)
-(load "subfiles/operative.scm")     ;   operatives                (uses object)
-(load "subfiles/port.scm")          ;   ports             (uses dynamic,object)
-(load "subfiles/cycles.scm")        ; cyclic structures
-(load "subfiles/ground.scm")        ; ground environment (uses everything else)
+(load "revision.scm")      ; mechanism for tracking revision and date
+(load "eval.scm")          ; evaluator central logic
+(load "interpreter.scm")   ; interpreter top level
+(load "boolean.scm")       ; booleans
+(load "object.scm")        ; encapsulated objects
+(load "applicative.scm")   ;   applicatives              (uses object)
+(load "context.scm")       ;   continuations             (uses object)
+(load "encapsulation.scm") ;   encapsulation types       (uses object)
+(load "environment.scm")   ;   environments              (uses object)
+(load "error.scm")         ;   error descriptors         (uses object)
+(load "ignore.scm")        ;   ignore                    (uses object)
+(load "inert.scm")         ;   inert                     (uses object)
+(load "kernel-pair.scm")   ;   pairs                     (uses object)
+(load "keyed.scm")         ;   keyed variables           (uses object)
+(load "number.scm")        ;   number                    (uses object)
+(load "operative.scm")     ;   operatives                (uses object)
+(load "port.scm")          ;   ports             (uses dynamic,object)
+(load "cycles.scm")        ; cyclic structures
+(load "ground.scm")        ; ground environment (uses everything else)
 
 (newline)
 (display "  SINK:  Scheme-based Interpreter for Not-quite Kernel.")   (newline)
