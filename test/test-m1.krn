@@ -1,0 +1,17 @@
+;
+; Used by "test-m2.krn".
+;
+
+($define! foo
+   ($lambda ()
+      ($cond ((not? ($binds? (get-current-environment) module-parameters))
+                (display "no parameters")
+                (newline))
+             ((not? ($binds? module-parameters quux))
+                (display "parameters, but no quux")
+                (newline))
+             (#t
+                (display "parameters")
+                (newline)
+                ($import! module-parameters quux)
+                quux))))

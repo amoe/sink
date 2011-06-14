@@ -1,0 +1,38 @@
+;
+; Simple demonstration of guard-dynamic-extent.
+;
+
+(guard-dynamic-extent
+   (list (list root-continuation
+               ($lambda (v %ignore)
+                  (display "Abnormally entering dynamic extent.")
+                  (newline)
+                  v)))
+   ($let ((outside  (get-current-environment)))
+      ($lambda ()
+         (display "Normally entering dynamic extent.")
+         (newline)
+         ($define! x
+                   ($let/cc  c1
+                      ($set! outside c1 c1)))
+         (display "Visiting dynamic extent")
+         ($cond ((not? (inert? x))
+                   (display ", x=")
+                   (display x)
+                   (display ".")
+                   (newline)
+                   (apply-continuation root-continuation x)))
+         (display ".")
+         (newline)
+         (display "Normally exiting dynamic extent.")
+         (newline)
+         (newline)))
+   (list (list root-continuation
+               ($lambda (v %ignore)
+                  (display "Abnormally exiting dynamic extent, v=")
+                  (write v)
+                  (display ".")
+                  (newline)
+                  v))))
+
+(apply-continuation c1 3)

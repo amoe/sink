@@ -1,0 +1,15 @@
+;
+; Tests support for module parameter passing trhough get-module.
+;
+
+($define! x (get-module "test-m1.krn"))
+($define! y (get-module "test-m1.krn" ($bindings->environment
+                                         (baz  "quux"))))
+($define! z (get-module "test-m1.krn" ($bindings->environment
+                                         (quux  "baz"))))
+
+(write (($remote-eval foo x))) (newline) (newline)
+
+(write (($remote-eval foo y))) (newline) (newline)
+
+(write (($remote-eval foo z))) (newline) (newline)

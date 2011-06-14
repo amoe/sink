@@ -1,0 +1,18 @@
+
+($define! $test
+   ($vau (expression  expected) env
+      (display expression)
+      (newline)
+      (display "  ==>  ")
+      (display (eval expression env))
+      (display "      (should be: ")
+      (display expected)
+      (display ")")
+      (newline)
+      (newline)))
+
+($define! p1 ($lazy (display "*")))
+($define! p2 ($lazy p1))
+
+($test (force p2) "*#inert")
+($test (force p1) "#inert")

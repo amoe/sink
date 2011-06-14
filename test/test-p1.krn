@@ -1,0 +1,35 @@
+
+($provide! (get-count p)
+
+   ($define! count 5)
+
+   ($define! get-count ($lambda () count))
+
+   ($define! p
+      ($let ((self  (get-current-environment)))
+         ($lazy
+            ($if (<=? count 0)
+                 count
+                 ($sequence
+                    ($set! self count (- count 1))
+                    (force p)
+                    ($set! self count (+ count 2))
+                    count))))))
+
+($define! $test
+   ($vau (expression  expected) env
+      (display expression)
+      (newline)
+      (display "  ==>  ")
+      (display (eval expression env))
+      (display "      (should be: ")
+      (display expected)
+      (display ")")
+      (newline)
+      (newline)))
+
+($test (get-count)      5)
+($test (force p)        0)
+($test (get-count)     10)
+($test (force p)        0)
+($test (get-count)     10)

@@ -1,0 +1,113 @@
+;
+; tests diversions, and abnormal passes both inward and outward,
+; from both entry interceptions and exit interceptions.
+;
+
+($define! step
+   ($lambda (ls . where)
+      (display "  Considering abnormal passage from ")
+      (for-each display where)
+      (display ".")
+      (newline)
+      ($if (not? (pair? ls))
+           ($sequence
+              (display "  Choosing not to abnormally branch, on ")
+              ($if (null? ls)
+                   (display "null message list")
+                   ($sequence
+                      (display "non-normal message: ")
+                      (write ls)))
+              (display ".")
+              (newline)
+              ls)
+           ($let (((x . ls)  ls))
+              ($cond ((continuation? x)
+                        (display "  Passing abnormally to ")
+                        (display x)
+                        (display ".")
+                        (newline)
+                        (apply-continuation x ls)))
+              (display "  Choosing not to abnormally branch, on message: ")
+              (write x)
+              (display ".")
+              (newline)
+              ls))))
+
+($define! make-guards
+   ($lambda (direction extent)
+      (list (list root-continuation
+                  ($lambda (v divert)
+                     (display "Intercepting at ")
+                     (display direction)
+                     (display "-guard protecting ")
+                     (display extent)
+                     (display ".")
+                     (newline)
+                     ;(display "Message: ")
+                     ;(write v)
+                     ;(newline)
+                     ($if (error-descriptor? v)
+                          ($sequence
+                             (display "Message is an error, ")
+                             (display "continuing abnormal passage.")
+                             (newline)
+                             v)
+                          ($sequence
+                             ($define! v (step v direction "-guard"))
+                             (display "Diverting from ")
+                             (display direction)
+                             (display "-guard protecting ")
+                             (display extent)
+                             (display ".")
+                             (newline)
+                             (apply divert v))))))))
+
+($define! walkabout
+   ($let ((first-flag  (list #t)))
+      ($vau operands env
+         ($cond  ((car first-flag)
+                    (set-car! first-flag #f)
+                    (newline)
+                    (display "Itinerary: ")
+                    (display operands)
+                    (newline)
+                    (newline)
+                    (step (map ($lambda (x) (eval x env)) operands)
+                          "applicative walkabout"))))))
+
+($let ()
+
+   ($define! outer-env (get-current-environment))
+
+   ($let ((vx  ($let/cc  cx
+                  ($set! outer-env cx cx)
+                  (display "Normally entering CX.")
+                  (newline)
+                  (guard-dynamic-extent
+                     (make-guards "entry" "CXX")
+                     ($lambda ()
+                        ($let ((vxx ($let/cc  cxx
+                                       ($set! outer-env cxx cxx)
+                                       (display "Normally entering CXX.")
+                                       (newline))))
+                           (display "Arriving at CXX.")
+                           (newline)
+                           ($define! vxx (step vxx "CXX"))
+                           (display "Returning normally from CXX.")
+                           (newline)
+                           vxx))
+                     (make-guards "exit" "CXX")))))
+      (display "Arriving at CX.")
+      (newline)
+      ($define! vx (step vx "CX"))
+      (display "Returning normally from CX.")
+      (newline)
+      vx)
+
+   (walkabout cx cxx ()  ; intercept entry, divert
+                 cxx cx  ; intercept entry, reverse
+                 cxx cxx ; intercept entry, persist
+                 cx  ()  ; intercept exit, divert
+         cxx cxx cx  cxx ; intercept exit, reverse
+                 cx  cx  ; intercept exit, persist
+                 ))

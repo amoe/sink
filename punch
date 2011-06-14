@@ -1,0 +1,10 @@
+
+version 0.2
+
+version 0.3
+
+Test interpreter get-list-metrics (note: input is a kernel-list, not a list).
+
+Systematically test all interpreter procedures.
+
+Ferret out undocumented dependencies between modules.

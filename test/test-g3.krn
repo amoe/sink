@@ -1,0 +1,23 @@
+;
+; Demonstrates that values passed through interceptors aren't evaluated.
+;
+
+($let ()
+
+   ($define! outer-env (get-current-environment))
+
+   ($define! first-flag #t)
+
+   (display
+      (guard-dynamic-extent
+         (list (list root-continuation
+                     ($lambda (val div) val)))
+         ($lambda ()
+            ($let/cc  cont
+               ($set! outer-env cont cont)))
+         (list)))
+   (newline)
+
+   ($cond (first-flag
+             ($define! first-flag #f)
+             (apply-continuation cont (list / 1 0)))))

@@ -1,0 +1,30 @@
+  This file is part of SINK, a Scheme-based Interpreter for Not-quite Kernel
+  Copyright (c) 2009 John N. Shutt
+
+    On program-internal handling of revision numbering,
+    see file "subfiles/revision.scm".
+
+revision log
+
+  0.0  2007 August 4   First moderately complete prototype.  Uses a somewhat
+                         haphazard mixture of primitive (meta-language) and
+                         library (object-language) implementations of derived
+                         features.  Only sporadically tested, and some feature
+                         implementations consciously do not fully conform to
+                         the R-1RK.
+
+  0.1  2007 August 5   Disables most primitive implementations of derived
+                         core features, and most library implementations
+                         whatsoever, clearing the way for more systematic
+                         testing of core derivations from the report.  Some
+                         of the disabled primitive implementations are
+                         retained in comments (but that needn't imply
+                         they're correct).
+
+  0.2                  Adds library implementations of all derived core
+                         features.
+
+  0.3                  Replaces primitive implementations of general
+                         arithmetic applicatives (+ - * /) with primitive
+                         implementations of binary applicatives and library
+                         generalizations using reduce.

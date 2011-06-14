@@ -1,0 +1,65 @@
+;
+; Demonstration of multiple interceptions.
+; (The definition of applicative $define/cc! just washed up here.)
+;
+
+($define! $define/cc!
+   ($vau (s) e
+      ($let/cc c
+         ((wrap $set!) e s c))))
+
+($let/cc c
+
+   ($define! cx (guard-continuation
+                   (list (list root-continuation
+                               ($lambda (v %ignore)
+                                  (display "entering continuation X with ")
+                                  (write v)
+                                  (newline)
+                                  v)))
+                   c
+                   (list (list root-continuation
+                               ($lambda (v %ignore)
+                                  (display "exiting continuation X with ")
+                                  (write v)
+                                  (newline)
+                                  v)))))
+
+   ($define! cy (guard-continuation
+                   (list (list root-continuation
+                               ($lambda (v %ignore)
+                                  (display "entering continuation Y with ")
+                                  (write v)
+                                  (newline)
+                                  v)))
+                   c
+                   (list (list root-continuation
+                               ($lambda (v %ignore)
+                                  (display "exiting continuation Y with ")
+                                  (write v)
+                                  (newline)
+                                  v)))))
+
+  ($define! x (continuation->applicative
+                 (extend-continuation cx
+                    ($lambda v
+                       (display "arrived at continuation X with ")
+                       (write v)
+                       (newline)
+                       (display "enter a value> ")
+                       (apply y ($let-safe ()
+                                   (eval (read)
+                                         (get-current-environment))))))))
+
+  ($define! y (continuation->applicative
+                 (extend-continuation cy
+                    ($lambda v
+                       (display "arrived at continuation Y with ")
+                       (write v)
+                       (newline)
+                       (display "enter a value> ")
+                       (apply x ($let-safe ()
+                                   (eval (read)
+                                         (get-current-environment))))))))
+
+  (x))

@@ -1,0 +1,36 @@
+
+($define! stream-filter
+   ($lambda (p? s)
+      ($lazy
+         ($let ((v  (force s)))
+            ($if (null? v)
+                 v
+                 ($let ((s  (stream-filter p? (cdr v))))
+                    ($if (p? (car v))
+                         (cons (car v) s)
+                         s)))))))
+
+($define! from
+   ($lambda (n)
+      ($lazy (cons n (from (+ n 1))))))
+
+(display
+  "This is a test for absence of a memory leak.  It should return a result")
+(newline)
+(display
+   "without running out of memory.  You might want to try it with some")
+(newline)
+(display
+   "smaller numbers first, to get a rough estimate of the total running time;")
+(newline)
+(display
+   "for example, under SINK interpreted by MzScheme on a Celeron 2.4 GHz,")
+(newline)
+(display
+  "estimated time to completion is about two millenia.")
+(newline)
+(newline)
+
+(force (stream-filter ($lambda (n) (=? n 10000000000))
+                      (from 0)))
+
