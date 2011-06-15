@@ -10,7 +10,9 @@
 
 (library (subfiles inert)
   (export)
-  (import (rnrs))
+  (import (rnrs)
+          (subfiles object)
+          (subfiles revision))
 
 (define inert (let ((name  (list #f)))
                 (lambda (message)
@@ -18,12 +20,10 @@
                     ((type) 'inert)
                     ((name) name)))))
 
-; XXX
-;(define inert? (make-object-type-predicate 'inert))
+(define inert? (make-object-type-predicate 'inert))
 
-; XXX
-;; (set-version (list 0.0 0)
-;;              (list 0.1 0))
-;; (set-revision-date 2007 8 4)
+(set-version (list 0.0 0)
+             (list 0.1 0))
+(set-revision-date 2007 8 4)
 
 )

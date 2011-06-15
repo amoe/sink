@@ -52,7 +52,7 @@
 ;
 
 (library (subfiles object)
-  (export)
+  (export make-object-type-predicate)
   (import (rnrs)
           (rnrs mutable-pairs))
 

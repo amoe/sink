@@ -1,10 +1,6 @@
 ; This file is part of SINK, a Scheme-based Interpreter for Not-quite Kernel
 ; Copyright (c) 2009 John N. Shutt
 
-(set-version (list 0.0 1)
-             (list 0.1 1))
-(set-revision-date 2009 8 31)
-
 ;;;;;;;;;;;;;;;;;;;
 ; keyed variables ;
 ;;;;;;;;;;;;;;;;;;;
@@ -27,6 +23,10 @@
 ; abstraction barriers on the objects they manipulate, and Kernel programs
 ; are never allowed to directly touch the alists or keys.
 ;
+
+(library (subfiles keyed)
+  (export)
+  (import (rnrs))
 
 ;
 ; Assigns a fresh key.
@@ -99,7 +99,14 @@
 ; here, and which in turn are responsible for calling get-fresh-key.  The other
 ; procedures return alists.
 ;
+; XXX
+;; (define make-top-level-dynamic-alist
+;;   (lambda ()
+;;      (make-top-level-ports-alist)))
 
-(define make-top-level-dynamic-alist
-  (lambda ()
-     (make-top-level-ports-alist)))
+;; (set-version (list 0.0 1)
+;;              (list 0.1 1))
+;; (set-revision-date 2009 8 31)
+
+)
+

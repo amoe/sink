@@ -21,7 +21,6 @@
         (and (car ls)
              (apply and? (cdr ls))))))
 
-; XXX
 (set-version (list 0.0 0)
             (list 0.1 0))
 (set-revision-date 2007 8 5)
