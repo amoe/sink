@@ -1,10 +1,6 @@
 ; This file is part of SINK, a Scheme-based Interpreter for Not-quite Kernel
 ; Copyright (c) 2009 John N. Shutt
 
-(set-version (list 0.0 0)
-             (list 0.1 0))
-(set-revision-date 2007 8 4)
-
 ;;;;;;;;;;;
 ; objects ;
 ;;;;;;;;;;;
@@ -54,6 +50,11 @@
 ;     (define get-foo-bar  (lambda (x) (x 'bar)))
 ;     (define get-foo-quux (lambda (x) (x 'quux)))
 ;
+
+(library (subfiles object)
+  (export)
+  (import (rnrs)
+          (rnrs mutable-pairs))
 
 ;
 ; Determines whether all its arguments are objects.
@@ -123,3 +124,9 @@
             ((symbol? name) (string-append "#[" type " " (symbol->string name)
                                                 "]"))
             (else           (string-append "#[" type "]"))))))
+
+;; (set-version (list 0.0 0)
+;;              (list 0.1 0))
+;; (set-revision-date 2007 8 4)
+
+)
