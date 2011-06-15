@@ -26,7 +26,8 @@
 
 (library (subfiles keyed)
   (export)
-  (import (rnrs))
+  (import (rnrs)
+          (subfiles revision))
 
 ;
 ; Assigns a fresh key.
@@ -104,9 +105,9 @@
 ;;   (lambda ()
 ;;      (make-top-level-ports-alist)))
 
-;; (set-version (list 0.0 1)
-;;              (list 0.1 1))
-;; (set-revision-date 2009 8 31)
+(set-version (list 0.0 1)
+             (list 0.1 1))
+(set-revision-date 2009 8 31)
 
 )
 
