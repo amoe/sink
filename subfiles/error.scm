@@ -14,7 +14,9 @@
 (library (subfiles error)
   (export)
   (import (rnrs)
-          (rnrs mutable-pairs))
+          (rnrs mutable-pairs)
+          (subfiles object)
+          (subfiles revision))
 
 (define make-error-descriptor
   (lambda content
@@ -27,7 +29,7 @@
           ((content) content))))))
 
 ; XXX
-;; (define error-descriptor? (make-object-type-predicate 'error-descriptor))
+(define error-descriptor? (make-object-type-predicate 'error-descriptor))
 
 (define get-error-content (lambda (x) (x 'content)))
 
@@ -92,8 +94,8 @@
 ;;     (aux (get-error-content error-descriptor))))
 
 
-;; (set-version (list 0.0 2)
-;;              (list 0.1 2))
-;; (set-revision-date 2009 9 20)
+(set-version (list 0.0 2)
+             (list 0.1 2))
+(set-revision-date 2009 9 20)
 
 )
