@@ -87,16 +87,3 @@
               (aux (cdr lss))))))
 
     (aux (get-error-content error-descriptor))))
-
-;
-; Creates bindings for this type in a given environment.
-;
-; This code should not use any internal knowledge of the error-descriptor
-; type.  It appears in this file, rather than in "subfiles/ground.scm", simply
-; because it is logically associated with the inert type.
-;
-(define bind-error-descriptor-primitives!
-  (lambda (env)
-    (add-bindings! env
-
-      'error-descriptor?  (unary-predicate->applicative error-descriptor?))))

@@ -70,31 +70,3 @@
 (define action->applicative
   (lambda (action)
     (wrap (action->operative action))))
-
-;
-; Creates bindings for this type in a given environment.
-;
-; This code should not use any internal knowledge of the applicative type.
-; It appears in this file, rather than in "subfiles/ground.scm", simply
-; because it is logically associated with the applicative type.
-;
-(define bind-applicative-primitives!
-  (lambda (env)
-    (add-bindings! env
-
-      'applicative?
-      (unary-predicate->applicative  applicative?)
-
-      'wrap
-      (action->checked-applicative
-        (lambda (operand-tree env context)
-          (wrap (kernel-car operand-tree)))
-        1  1 combiner?)
-
-      'unwrap
-      (action->checked-applicative
-        (lambda (operand-tree env context)
-          (unwrap (kernel-car operand-tree)))
-        1  1 applicative?)
-
-      )))

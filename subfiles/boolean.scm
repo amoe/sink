@@ -18,35 +18,3 @@
     (or (null? ls)
         (and (car ls)
              (apply and? (cdr ls))))))
-
-;
-; Creates bindings for handling booleans in a given environment.
-;
-(define bind-boolean-primitives!
-  (lambda (env)
-    (add-bindings! env
-
-      'boolean?
-      (unary-predicate->applicative boolean?)
-
-    ; 'and?
-    ; (action->checked-applicative
-    ;   (lambda (operand-tree env context)
-    ;     (apply and? (kernel-list->list operand-tree)))
-    ;   0 -1 boolean?)
-
-      '$if
-      (action->checked-operative
-        (lambda (operand-tree env context)
-          (let ((test  (eval (kernel-car operand-tree) env context)))
-            (if (boolean? test)
-                (if test
-                    (eval (kernel-cadr operand-tree) env context)
-                    (eval (kernel-caddr operand-tree) env context))
-                (error-pass
-                  (make-error-descriptor
-                    "Non-boolean test result, when calling #[operative $if]")
-                  context))))
-          3 3)
-
-      )))

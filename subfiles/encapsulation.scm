@@ -47,19 +47,3 @@
                 ((kernel-car operand-tree) 'value))
               "decapsulator"
               1 1 this-type?)))))))
-
-;
-; Creates bindings for this type in a given environment.
-;
-; This code should not use any internal knowledge of the encapsulation type.
-; It appears in this file, rather than in "subfiles/ground.scm", simply
-; because it is logically associated with the encapsulation type.
-;
-(define bind-encapsulation-primitives!
-  (lambda (env)
-    (add-bindings! env
-
-      'make-encapsulation-type
-      (action->checked-applicative
-        (lambda x (make-encapsulation-type))
-        0 0))))

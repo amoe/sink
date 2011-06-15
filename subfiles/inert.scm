@@ -23,13 +23,13 @@
 ;
 ; Creates bindings for this type in a given environment.
 ;
-; This code should not use any internal knowledge of the inert type (not
+; This code should not use any internal knowledge of the ignore type (not
 ; that there's anything much to use).  It appears in this file, rather than
 ; in "subfiles/ground.scm", simply because it is logically associated with
-; the inert type.
+; the ignore type.
 ;
-(define bind-inert-primitives!
+(define bind-ignore-primitives!
   (lambda (env)
     (add-bindings! env
 
-      'inert?  (unary-predicate->applicative inert?))))
+      'ignore?  (unary-predicate->applicative ignore?))))
