@@ -8,7 +8,8 @@
 
 (library (subfiles boolean)
   (export)
-  (import (rnrs))
+  (import (rnrs)
+          (subfiles revision))
 
 ;
 ; Given zero or more boolean arguments, returns their conjunction (i.e.,
@@ -21,8 +22,8 @@
              (apply and? (cdr ls))))))
 
 ; XXX
-;(set-version (list 0.0 0)
-;             (list 0.1 0))
-;(set-revision-date 2007 8 5)
+(set-version (list 0.0 0)
+            (list 0.1 0))
+(set-revision-date 2007 8 5)
 
 )
