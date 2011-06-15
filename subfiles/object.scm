@@ -52,7 +52,8 @@
 ;
 
 (library (subfiles object)
-  (export make-object-type-predicate)
+  (export make-object-type-predicate
+          designate-name-inheritor!)
   (import (rnrs)
           (rnrs mutable-pairs))
 

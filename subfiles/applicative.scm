@@ -13,30 +13,25 @@
 
 (library (subfiles applicative)
   (export)
-  (import (rnrs))
+  (import (rnrs)
+          (subfiles object)
+          (subfiles revision))
 
-; XXX
-;; (define wrap
-;;   (lambda (combiner)
-;;     (let ((appv  (let ((name  (list #t)))
-;;                    (lambda (message)
-;;                      (case message
-;;                        ((type)       'applicative)
-;;                        ((name)       name)
-;;                        ((underlying) combiner))))))
-;;       (designate-name-inheritor! appv combiner)
-;;       appv)))
+(define wrap
+  (lambda (combiner)
+    (let ((appv  (let ((name  (list #t)))
+                   (lambda (message)
+                     (case message
+                       ((type)       'applicative)
+                       ((name)       name)
+                       ((underlying) combiner))))))
+      (designate-name-inheritor! appv combiner)
+      appv)))
 
-; XXX
-;; (define applicative? (make-object-type-predicate 'applicative))
+(define applicative? (make-object-type-predicate 'applicative))
 
 (define unwrap (lambda (x) (x 'underlying)))
 
-;
-;
-;
-
-; XXX: depends on WRAP
 ;; (define unary-predicate->applicative
 ;;   (lambda x
 ;;     (wrap (apply unary-predicate->operative x))))
@@ -76,8 +71,8 @@
 ;;     (wrap (action->operative action))))
 
 ; XXX
-;; (set-version (list 0.0 0)
-;;              (list 0.1 0))
-;; (set-revision-date 2007 8 4)
+(set-version (list 0.0 0)
+             (list 0.1 0))
+(set-revision-date 2007 8 4)
 
 )
