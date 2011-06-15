@@ -1,10 +1,6 @@
 ; This file is part of SINK, a Scheme-based Interpreter for Not-quite Kernel
 ; Copyright (c) 2009 John N. Shutt
 
-(set-version (list 0.0 1)
-             (list 0.1 1))
-(set-revision-date 2009 9 1)
-
 ;;;;;;;;;
 ; pairs ;
 ;;;;;;;;;
@@ -54,14 +50,21 @@
 ; kernel-pair is an object with type 'immutable and attributes 'kar and 'kdr.
 ;
 
-(define mutable? (make-object-type-predicate 'mutable))
+(library (subfiles kernel-pair)
+  (export)
+  (import (rnrs)
+          (rnrs mutable-pairs))
 
-(define immutable? (make-object-type-predicate 'immutable))
+; XXX: object
+;; (define mutable? (make-object-type-predicate 'mutable))
 
-(define kernel-pair?
-  (lambda (x)
-    (or (mutable? x)
-        (immutable? x))))
+;; (define immutable? (make-object-type-predicate 'immutable))
+
+; XXX: SF
+;; (define kernel-pair?
+;;   (lambda (x)
+;;     (or (mutable? x)
+;;         (immutable? x))))
 
 (define kernel-car
   (lambda (x)
@@ -160,10 +163,11 @@
 
     ; get-revisits
     (lambda (tree)
-      (aux () () tree))))
+      (aux '() '() tree))))
 
-(define get-kernel-revisits
-  (make-get-revisits kernel-pair? kernel-car kernel-cdr))
+; XXX: SF
+;; (define get-kernel-revisits
+;;   (make-get-revisits kernel-pair? kernel-car kernel-cdr))
 
 ;
 ; Constructs a procedure that takes as its sole argument a possibly-cyclic
@@ -219,7 +223,7 @@
                     (let ((content  (cddr record)))
                       (if (pair? content)
                           (begin
-                            (set-cdr! (cdr record) ())
+                            (set-cdr! (cdr record) '())
                             (set-car! content (aux (in-car tree)))
                             (set-cdr! content (aux (in-cdr tree)))))
                       (cadr record))
@@ -231,67 +235,70 @@
 ;
 ; Given a Kernel value, returns an immutable copy of its evaluation structure.
 ;
-(define copy-es-immutable
-  (make-es-copier
-    mutable? kernel-car kernel-cdr
-    (let ((name  (list #f)))
-      (lambda (key)
-        (let ((content  (cons () ())))
-          (let ((immutable  (lambda (message)
-                              (case message
-                                ((type) 'immutable)
-                                ((name) name)
-                                ((kar)  (car content))
-                                ((kdr)  (cdr content))))))
-            (cons key
-                  (cons immutable content))))))
-    (let ((name  (list #f)))
-      (lambda (kar kdr)
-        (lambda (message)
-          (case message
-            ((type) 'immutable)
-            ((name) name)
-            ((kar)  kar)
-            ((kdr)  kdr)))))
-    (lambda (x) x)))
+; XXX: mutable? (SF)
+;; (define copy-es-immutable
+;;   (make-es-copier
+;;     mutable? kernel-car kernel-cdr
+;;     (let ((name  (list #f)))
+;;       (lambda (key)
+;;         (let ((content  (cons () ())))
+;;           (let ((immutable  (lambda (message)
+;;                               (case message
+;;                                 ((type) 'immutable)
+;;                                 ((name) name)
+;;                                 ((kar)  (car content))
+;;                                 ((kdr)  (cdr content))))))
+;;             (cons key
+;;                   (cons immutable content))))))
+;;     (let ((name  (list #f)))
+;;       (lambda (kar kdr)
+;;         (lambda (message)
+;;           (case message
+;;             ((type) 'immutable)
+;;             ((name) name)
+;;             ((kar)  kar)
+;;             ((kdr)  kdr)))))
+;;     (lambda (x) x)))
 
 ;
 ; Given a Kernel value, returns a mutable copy of its evaluation structure.
 ;
-(define copy-es
-  (make-es-copier
-    kernel-pair? kernel-car kernel-cdr
-    (lambda (key)
-      (let* ((kernel-pair  (kernel-cons () ()))
-             (content      (kernel-pair 'content)))
-        (cons key (cons kernel-pair content))))
-    kernel-cons
-    (lambda (x) x)))
+; XXX: SF
+;; (define copy-es
+;;   (make-es-copier
+;;     kernel-pair? kernel-car kernel-cdr
+;;     (lambda (key)
+;;       (let* ((kernel-pair  (kernel-cons () ()))
+;;              (content      (kernel-pair 'content)))
+;;         (cons key (cons kernel-pair content))))
+;;     kernel-cons
+;;     (lambda (x) x)))
 
 ;
 ; Given a scheme value presumed to have just been read, returns a mutable
 ; Kernel version of the value, by copying its evaluation structure and
 ; transforming certain symbols to their Kernel counterparts.
 ;
-(define scheme-read-object->kernel
-  (make-es-copier
-    pair? car cdr
-    (lambda (key)
-      (let* ((kernel-pair  (kernel-cons () ()))
-             (content      (kernel-pair 'content)))
-        (cons key (cons kernel-pair content))))
-    kernel-cons
-    (lambda (x)
-      (if (symbol? x)
-          (case x
-            ((%ignore) ignore)
-            ((%inert)  inert)
-            ((%e+infinity)  exact-positive-infinity)
-            ((%e-infinity)  exact-negative-infinity)
-            ((%i+infinity)  inexact-positive-infinity)
-            ((%i-infinity)  inexact-negative-infinity)
-            (else      x))
-          x))))
+; XXX: IGNORE, INERT
+;; (define scheme-read-object->kernel
+;;   (make-es-copier
+;;     pair? car cdr
+;;     (lambda (key)
+;;       (let* ((kernel-pair  (kernel-cons '() '()))
+;;              (content      (kernel-pair 'content)))
+;;         (cons key (cons kernel-pair content))))
+;;     kernel-cons
+;;     (lambda (x)
+;;       (if (symbol? x)
+;;           (case x
+;;             ((%ignore) ignore)
+;;             ((%inert)  inert)
+;;             ((%e+infinity)  exact-positive-infinity)
+;;             ((%e-infinity)  exact-negative-infinity)
+;;             ((%i+infinity)  inexact-positive-infinity)
+;;             ((%i-infinity)  inexact-negative-infinity)
+;;             (else      x))
+;;           x))))
 
 ;
 ; Given a kernel-list, returns a list with the same elements in the same order.
@@ -304,9 +311,10 @@
 ; To guarantee that the result will be distinct from the argument,
 ; use  copy-kernel-list->list.
 ;
-(define kernel-list->list
-  (lambda (ls)
-    (copy-kernel-list->list ls)))
+; XXX: COPY-KERNEL-LIST->LIST
+;; (define kernel-list->list
+;;   (lambda (ls)
+;;     (copy-kernel-list->list ls)))
 
 ;
 ; Given a list, returns a mutable kernel-list with the same elements in the
@@ -327,19 +335,20 @@
 ; Determines whether a tree (i.e., an arbitrary interpreted-language value)
 ; is cyclic.
 ;
-(define cyclic-tree?
-  (lambda (tree)
+; XXX: KERNEL-PAIR?
+;; (define cyclic-tree?
+;;   (lambda (tree)
 
-    (define aux
-      (lambda (ancestors tree)
-        (cond ((not (kernel-pair? tree))  #f)
-              ((pair? (memq tree ancestors))  #t)
-              (else
-                (let ((ancestors  (cons tree ancestors)))
-                  (or (aux ancestors (kernel-car tree))
-                      (aux ancestors (kernel-cdr tree))))))))
+;;     (define aux
+;;       (lambda (ancestors tree)
+;;         (cond ((not (kernel-pair? tree))  #f)
+;;               ((pair? (memq tree ancestors))  #t)
+;;               (else
+;;                 (let ((ancestors  (cons tree ancestors)))
+;;                   (or (aux ancestors (kernel-car tree))
+;;                       (aux ancestors (kernel-cdr tree))))))))
 
-    (aux () tree)))
+;;     (aux '() tree)))
 
 ;
 ; Given a tree of the interpreted language, output a representation of it to
@@ -355,75 +364,84 @@
 ; and the cddr of the record is #t or #f depending on whether that revisit has
 ; already been expanded once.
 ;
-(define write-tree
-  (lambda (x . options)
-    (let ((outport     (if (pair? options)
-                           (car options)
-                           (current-output-port)))
-          (write-leaf  (if (and (pair? options) (pair? (cdr options)))
-                           (cadr options)
-                           write))
-          (table  (letrec ((aux  (lambda (ls k)
-                                   (if (null? ls)
-                                       ls
-                                       (cons (cons (car ls) (cons k #f))
-                                             (aux (cdr ls) (+ k 1)))))))
-                    (aux (get-kernel-revisits x) 0))))
+; XXX: GET-KERNEL-REVISITS (SF)
+;; (define write-tree
+;;   (lambda (x . options)
+;;     (let ((outport     (if (pair? options)
+;;                            (car options)
+;;                            (current-output-port)))
+;;           (write-leaf  (if (and (pair? options) (pair? (cdr options)))
+;;                            (cadr options)
+;;                            write))
+;;           (table  (letrec ((aux  (lambda (ls k)
+;;                                    (if (null? ls)
+;;                                        ls
+;;                                        (cons (cons (car ls) (cons k #f))
+;;                                              (aux (cdr ls) (+ k 1)))))))
+;;                     (aux (get-kernel-revisits x) 0))))
 
-      (define write-visit
-        (lambda (x rec)
-          (display "#"        outport)
-          (display (cadr rec) outport)
-          (if (cddr rec)
-              (display "#" outport)
-              (begin
-                (set-cdr! (cdr rec) #t)
-                (display   "=(" outport)
-                (write-car (kernel-car x))
-                (write-cdr (kernel-cdr x))
-                (display   ")" outport)))))
+;;       (define write-visit
+;;         (lambda (x rec)
+;;           (display "#"        outport)
+;;           (display (cadr rec) outport)
+;;           (if (cddr rec)
+;;               (display "#" outport)
+;;               (begin
+;;                 (set-cdr! (cdr rec) #t)
+;;                 (display   "=(" outport)
+;;                 (write-car (kernel-car x))
+;;                 (write-cdr (kernel-cdr x))
+;;                 (display   ")" outport)))))
 
-      (define write-cdr
-        (lambda (x)
-          (cond ((null? x))
-                ((kernel-pair? x)
-                   (let ((rec  (assq x table)))
-                     (if (pair? rec)
-                         (begin
-                           (display     " . " outport)
-                           (write-visit x rec))
-                         (begin
-                           (display   " " outport)
-                           (write-car (kernel-car x))
-                           (write-cdr (kernel-cdr x))))))
-                (else
-                   (display   " . " outport)
-                   (write-car x)))))
+;;       (define write-cdr
+;;         (lambda (x)
+;;           (cond ((null? x))
+;;                 ((kernel-pair? x)
+;;                    (let ((rec  (assq x table)))
+;;                      (if (pair? rec)
+;;                          (begin
+;;                            (display     " . " outport)
+;;                            (write-visit x rec))
+;;                          (begin
+;;                            (display   " " outport)
+;;                            (write-car (kernel-car x))
+;;                            (write-cdr (kernel-cdr x))))))
+;;                 (else
+;;                    (display   " . " outport)
+;;                    (write-car x)))))
 
-      (define write-car
-        (lambda (x)
-          (cond ((kernel-pair? x)
-                   (let ((rec  (assq x table)))
-                     (if (pair? rec)
-                         (write-visit x rec)
-                         (begin
-                           (display   "(" outport)
-                           (write-car (kernel-car x))
-                           (write-cdr (kernel-cdr x))
-                           (display   ")" outport)))))
-                ((object? x)  (display (describe-object x) outport))
-                ((pair? x)
-                   (display "#[misplaced meta-language structure: ")
-                   (write x)
-                   (display "]"))
-                (else  (write-leaf x outport)))))
+;;       (define write-car
+;;         (lambda (x)
+;;           (cond ((kernel-pair? x)
+;;                    (let ((rec  (assq x table)))
+;;                      (if (pair? rec)
+;;                          (write-visit x rec)
+;;                          (begin
+;;                            (display   "(" outport)
+;;                            (write-car (kernel-car x))
+;;                            (write-cdr (kernel-cdr x))
+;;                            (display   ")" outport)))))
+;;                 ((object? x)  (display (describe-object x) outport))
+;;                 ((pair? x)
+;;                    (display "#[misplaced meta-language structure: ")
+;;                    (write x)
+;;                    (display "]"))
+;;                 (else  (write-leaf x outport)))))
 
-      (write-car x))))
+;;       (write-car x))))
 
 ;
 ; As write-tree, except that there must be exactly two arguments, and the
 ; non-object leaf output procedure is display rather than write.
 ;
-(define display-tree
-  (lambda (x outport)
-    (write-tree x outport display)))
+; XXX: WRITE-TREE (SF)
+;; (define display-tree
+;;   (lambda (x outport)
+;;     (write-tree x outport display)))
+
+
+;; (set-version (list 0.0 1)
+;;              (list 0.1 1))
+;; (set-revision-date 2009 9 1)
+
+)
