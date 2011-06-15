@@ -1,9 +1,6 @@
 ; This file is part of SINK, a Scheme-based Interpreter for Not-quite Kernel
 ; Copyright (c) 2009 John N. Shutt
 
-(set-version (list 0.1 0))
-(set-revision-date 2007 8 5)
-
 ;;;;;;;;;;;;;;;;;;;;;
 ; cyclic structures ;
 ;;;;;;;;;;;;;;;;;;;;;
@@ -35,24 +32,30 @@
 ; in using a cyclic argument list (or operand list).
 ;
 
+(library (subfiles cycles)
+  (export)
+  (import (rnrs))
+
 ;
 ; Given improper kernel-list ls and nonnegative integer k, returns the (k)th
 ; kernel-cdr of ls.  Thus, if k=0, returns ls.
 ;
-(define kernel-list-tail
-  (lambda (ls k)
-    (if (> k 0)
-        (kernel-list-tail (kernel-cdr ls) (- k 1))
-        ls)))
+; XXX: KERNEL-CDR
+;; (define kernel-list-tail
+;;   (lambda (ls k)
+;;     (if (> k 0)
+;;         (kernel-list-tail (kernel-cdr ls) (- k 1))
+;;         ls)))
 
 ;
 ; Given improper kernel-list ls and nonnegative integer k, returns the
 ; kernel-car of the (k)th kernel-cdr of ls.  Thus, if k=0, returns the
 ; kernel-car of ls; if k=1, returns the kernel-cadr of ls; and so on.
 ;
-(define kernel-list-ref
-  (lambda (ls k)
-    (kernel-car (kernel-list-tail ls k))))
+; XXX: KERNEL-CAR
+;; (define kernel-list-ref
+;;   (lambda (ls k)
+;;     (kernel-car (kernel-list-tail ls k))))
 
 ;
 ; Given a value to be construed as an improper kernel-list, returns a list
@@ -90,76 +93,80 @@
 ; fields.  That's not even getting in to questions of reentrance and
 ; parallelization.
 ;
-(define get-list-metrics
-  (lambda (x)
+; XXX: KERNEL-PAIR?
+;; (define get-list-metrics
+;;   (lambda (x)
 
-    ; find the cycle length
-    (define aux
-      (lambda (current-x ; the item we're going to look at now
-               current-n ; the number of kernel-pairs we've already passed
-               old-x     ; an earlier kernel-pair to compare with this item
-               old-n     ; the number of kernel-pairs preceding old-x
-               next-n)   ; when to replace old-x
-        (cond ((not (kernel-pair? current-x))
-                 (list current-n (if (null? current-x) 1 0)
-                       current-n 0))
-              ((eq? current-x old-x)
-                 (aux2 (- current-n old-n)))
-              ((< current-n next-n)
-                 (aux (kernel-cdr current-x) (+ 1 current-n)
-                      old-x                  old-n
-                                             next-n))
-              (else
-                 (aux (kernel-cdr current-x) (+ 1 current-n)
-                      current-x              current-n
-                                             (* 2 current-n))))))
+;;     ; find the cycle length
+;;     (define aux
+;;       (lambda (current-x ; the item we're going to look at now
+;;                current-n ; the number of kernel-pairs we've already passed
+;;                old-x     ; an earlier kernel-pair to compare with this item
+;;                old-n     ; the number of kernel-pairs preceding old-x
+;;                next-n)   ; when to replace old-x
+;;         (cond ((not (kernel-pair? current-x))
+;;                  (list current-n (if (null? current-x) 1 0)
+;;                        current-n 0))
+;;               ((eq? current-x old-x)
+;;                  (aux2 (- current-n old-n)))
+;;               ((< current-n next-n)
+;;                  (aux (kernel-cdr current-x) (+ 1 current-n)
+;;                       old-x                  old-n
+;;                                              next-n))
+;;               (else
+;;                  (aux (kernel-cdr current-x) (+ 1 current-n)
+;;                       current-x              current-n
+;;                                              (* 2 current-n))))))
 
-    ; find the acyclic prefix length
-    (define aux2
-      (lambda (cycle-length)
-        (let ((acyclic-prefix-length
-                (aux3 x (kernel-list-tail x cycle-length) 0)))
-          (list (+ acyclic-prefix-length cycle-length)
-                0
-                acyclic-prefix-length
-                cycle-length))))
+;;     ; find the acyclic prefix length
+;;     (define aux2
+;;       (lambda (cycle-length)
+;;         (let ((acyclic-prefix-length
+;;                 (aux3 x (kernel-list-tail x cycle-length) 0)))
+;;           (list (+ acyclic-prefix-length cycle-length)
+;;                 0
+;;                 acyclic-prefix-length
+;;                 cycle-length))))
 
-    ; find the acyclic prefix length
-    (define aux3
-      (lambda (x y n)
-        (if (eq? x y)
-            n
-            (aux3 (kernel-cdr x) (kernel-cdr y) (+ 1 n)))))
+;;     ; find the acyclic prefix length
+;;     (define aux3
+;;       (lambda (x y n)
+;;         (if (eq? x y)
+;;             n
+;;             (aux3 (kernel-cdr x) (kernel-cdr y) (+ 1 n)))))
 
-    (if (kernel-pair? x)
-        (aux (kernel-cdr x) 1 x 0 8)
-        (list 0 (if (null? x) 1 0) 0 0))))
+;;     (if (kernel-pair? x)
+;;         (aux (kernel-cdr x) 1 x 0 8)
+;;         (list 0 (if (null? x) 1 0) 0 0))))
 
 ;
 ; Given a value, determines whether that value is a list in the Kernel sense,
 ; i.e., either a finite list terminated by nil, or a cyclic list.
 ;
-(define kernel-list?
-  (lambda (ls)
-    (let* ((metrics  (get-list-metrics ls))
-           (n  (cadr metrics))
-           (c  (cadddr metrics)))
-      (or (> n 0)
-          (> c 0)))))
+; XXX: GET-LIST-METRICS (SF)
+;; (define kernel-list?
+;;   (lambda (ls)
+;;     (let* ((metrics  (get-list-metrics ls))
+;;            (n  (cadr metrics))
+;;            (c  (cadddr metrics)))
+;;       (or (> n 0)
+;;           (> c 0)))))
 
 ;
 ; Given a value, determines whether that value is a finite list.
 ;
-(define finite-list?
-  (lambda (ls)
-    (> (cadr (get-list-metrics ls)) 0)))
+; XXX: GET-LIST-METRICS (SF)
+;; (define finite-list?
+;;   (lambda (ls)
+;;     (> (cadr (get-list-metrics ls)) 0)))
 
 ;
 ; Given a value, determines whether that value is a cyclic list.
 ;
-(define cyclic-list?
-  (lambda (ls)
-    (> (cadddr (get-list-metrics ls)) 0)))
+; XXX: GET-LIST-METRICS (SF)
+;; (define cyclic-list?
+;;   (lambda (ls)
+;;     (> (cadddr (get-list-metrics ls)) 0)))
 
 ;
 ; Given a cons-like procedure some-cons, returns a procedure that,
@@ -171,19 +178,21 @@
 ; bounded-simple-map, which returns a finite mutable kernel-list, and
 ; bounded-simple-map->list, which returns a list.
 ;
-(define make-bounded-simple-map
-  (lambda (some-cons)
-    (letrec ((mapper  (lambda (n-pairs proc ls)
-                        (if (> n-pairs 0)
-                            (some-cons (proc (kernel-car ls))
-                                       (mapper (- n-pairs 1)
-                                               proc
-                                               (kernel-cdr ls)))
-                            ()))))
-      mapper)))
+; XXX: KERNEL-CAR
+;; (define make-bounded-simple-map
+;;   (lambda (some-cons)
+;;     (letrec ((mapper  (lambda (n-pairs proc ls)
+;;                         (if (> n-pairs 0)
+;;                             (some-cons (proc (kernel-car ls))
+;;                                        (mapper (- n-pairs 1)
+;;                                                proc
+;;                                                (kernel-cdr ls)))
+;;                             ()))))
+;;       mapper)))
 
-(define bounded-simple-map       (make-bounded-simple-map kernel-cons))
-(define bounded-simple-map->list (make-bounded-simple-map cons))
+; XXX: SF
+;; (define bounded-simple-map       (make-bounded-simple-map kernel-cons))
+;; (define bounded-simple-map->list (make-bounded-simple-map cons))
 
 ;
 ; Given a kernel-list, returns a freshly allocated list with the same elements
@@ -191,11 +200,12 @@
 ;
 ; If the resultant list certainly won't be mutated, use  kernel-list->list.
 ;
-(define copy-kernel-list->list
-  (lambda (ls)
-    (bounded-simple-map->list (car (get-list-metrics ls))
-                              (lambda (x) x)
-                              ls)))
+; XXX: BOUNDED-SIMPLE-MAP->LIST (SF)
+;; (define copy-kernel-list->list
+;;   (lambda (ls)
+;;     (bounded-simple-map->list (car (get-list-metrics ls))
+;;                               (lambda (x) x)
+;;                               ls)))
 
 ;
 ; Given mutable kernel-list ls, nonnegative integer a, and nonnegative integer
@@ -204,11 +214,12 @@
 ; point to the (a+1)th kernel-pair of ls.  After mutation, ls has acyclic
 ; prefix length a and cycle length c.
 ;
-(define kernel-encycle!
-  (lambda (ls a c)
-    (if (> c 0)
-        (kernel-set-cdr! (kernel-list-tail ls (+ a c -1))
-                         (kernel-list-tail ls a)))))
+; XXX: KERNEL-SET-CDR!
+;; (define kernel-encycle!
+;;   (lambda (ls a c)
+;;     (if (> c 0)
+;;         (kernel-set-cdr! (kernel-list-tail ls (+ a c -1))
+;;                          (kernel-list-tail ls a)))))
 
 ;
 ; Given procedure proc and kernel-list ls, calls proc on each element of ls
@@ -221,17 +232,18 @@
 ;   ==>
 ;       {6 7 #0={8 9 . #0#}}
 ;
-(define simple-map
-  (lambda (proc ls)
-    (let* ((metrics  (get-list-metrics ls))
-           (p  (car metrics))
-           (a  (caddr metrics))
-           (c  (cadddr metrics)))
-      (if (<= p 0)
-          ()
-          (let ((ls  (bounded-simple-map p proc ls)))
-            (kernel-encycle! ls a c)
-            ls)))))
+; XXX: GET-LIST-METRICS (SF)
+;; (define simple-map
+;;   (lambda (proc ls)
+;;     (let* ((metrics  (get-list-metrics ls))
+;;            (p  (car metrics))
+;;            (a  (caddr metrics))
+;;            (c  (cadddr metrics)))
+;;       (if (<= p 0)
+;;           ()
+;;           (let ((ls  (bounded-simple-map p proc ls)))
+;;             (kernel-encycle! ls a c)
+;;             ls)))))
 
 ;
 ; Given a nonempty kernel-list of kernel-lists lss, constructs a
@@ -254,51 +266,52 @@
 ;   ==>
 ;       ({#0={1 4 . #0#} #1={2 5 . #1#} #2={3 6 . #2#} #3={2 6 . #3#}} 2 2)
 ;
-(define transpose-lists
-  (lambda (lss)
+; XXX: GET-LIST-METRICS (SF)
+;; (define transpose-lists
+;;   (lambda (lss)
 
-    (define get-results-metrics
-      (lambda (so-far remaining)
-        (if (null? remaining)
-            so-far
-            (let ((next       (car remaining))
-                  (remaining  (cdr remaining)))
-              (let ((sa  (caddr so-far))
-                    (sc  (cadddr so-far))
-                    (na  (caddr next))
-                    (nc  (cadddr next)))
-                (if (or (not (eq? (zero? sc) (zero? nc)))
-                        (and (zero? sc) (zero? nc) (not (= sa na))))
-                    "lists don't have the same length"
-                    (let ((a  (max sa na))
-                          (c  (if (zero? sc) sc (lcm sc nc))))
-                      (get-results-metrics (list (+ a c) (cadr so-far) a c)
-                                           remaining))))))))
+;;     (define get-results-metrics
+;;       (lambda (so-far remaining)
+;;         (if (null? remaining)
+;;             so-far
+;;             (let ((next       (car remaining))
+;;                   (remaining  (cdr remaining)))
+;;               (let ((sa  (caddr so-far))
+;;                     (sc  (cadddr so-far))
+;;                     (na  (caddr next))
+;;                     (nc  (cadddr next)))
+;;                 (if (or (not (eq? (zero? sc) (zero? nc)))
+;;                         (and (zero? sc) (zero? nc) (not (= sa na))))
+;;                     "lists don't have the same length"
+;;                     (let ((a  (max sa na))
+;;                           (c  (if (zero? sc) sc (lcm sc nc))))
+;;                       (get-results-metrics (list (+ a c) (cadr so-far) a c)
+;;                                            remaining))))))))
 
-    (define aux
-      (lambda (k lss p a c)
-        (if (<= k 0)
-            ()
-            (let ((x  (bounded-simple-map p kernel-car lss))
-                  (y  (bounded-simple-map p kernel-cdr lss)))
-              (kernel-encycle! x a c)
-              (kernel-cons x (aux (- k 1) y p a c))))))
+;;     (define aux
+;;       (lambda (k lss p a c)
+;;         (if (<= k 0)
+;;             ()
+;;             (let ((x  (bounded-simple-map p kernel-car lss))
+;;                   (y  (bounded-simple-map p kernel-cdr lss)))
+;;               (kernel-encycle! x a c)
+;;               (kernel-cons x (aux (- k 1) y p a c))))))
 
-    (let* ((lss-metrics  (get-list-metrics lss))
-           (lss-p        (car lss-metrics))
-           (lss-a        (caddr lss-metrics))
-           (lss-c        (cadddr lss-metrics)))
-      (let* ((metrics-list  (bounded-simple-map->list
-                              lss-p get-list-metrics lss))
-             (results-metrics  (get-results-metrics (car metrics-list)
-                                                    (cdr metrics-list))))
-        (if (string? results-metrics)
-            results-metrics
-            (let ((rp  (car results-metrics))
-                  (ra  (caddr results-metrics))
-                  (rc  (cadddr results-metrics)))
-              (list (aux rp lss lss-p lss-a lss-c)
-                    ra rc)))))))
+;;     (let* ((lss-metrics  (get-list-metrics lss))
+;;            (lss-p        (car lss-metrics))
+;;            (lss-a        (caddr lss-metrics))
+;;            (lss-c        (cadddr lss-metrics)))
+;;       (let* ((metrics-list  (bounded-simple-map->list
+;;                               lss-p get-list-metrics lss))
+;;              (results-metrics  (get-results-metrics (car metrics-list)
+;;                                                     (cdr metrics-list))))
+;;         (if (string? results-metrics)
+;;             results-metrics
+;;             (let ((rp  (car results-metrics))
+;;                   (ra  (caddr results-metrics))
+;;                   (rc  (cadddr results-metrics)))
+;;               (list (aux rp lss lss-p lss-a lss-c)
+;;                     ra rc)))))))
 
 ;
 ; Given procedure proc and nonempty kernel-list of kernel-lists lss,
@@ -320,17 +333,18 @@
 ;   ==>
 ;       {5 7 #0={9 9 11 8 10 10 . #0#}}
 ;
-(define full-map
-  (lambda (proc lss)
-    (let ((x  (transpose-lists lss)))
-      (if (string? x)
-          x
-          (let ((ls  (car x))
-                (a   (cadr x))
-                (c   (caddr x)))
-            (let ((ls  (bounded-simple-map (+ a c) proc ls)))
-              (kernel-encycle! ls a c)
-              ls))))))
+; XXX: TRANSPOSE-LISTS
+;; (define full-map
+;;   (lambda (proc lss)
+;;     (let ((x  (transpose-lists lss)))
+;;       (if (string? x)
+;;           x
+;;           (let ((ls  (car x))
+;;                 (a   (cadr x))
+;;                 (c   (caddr x)))
+;;             (let ((ls  (bounded-simple-map (+ a c) proc ls)))
+;;               (kernel-encycle! ls a c)
+;;               ls))))))
 
 ;
 ; Given two structures x and y, either of which may be cyclic, determine
@@ -345,40 +359,46 @@
 ; There is no call for this tool to use encapsulated knowledge about the
 ; kernel-pair type, because marking individual kernel-pairs wouldn't help.
 ;
-(define kernel-equal?
-  (lambda (x y)
+; XXX: KERNEL-PAIR?
+;; (define kernel-equal?
+;;   (lambda (x y)
 
-    (define table ())
+;;     (define table ())
 
-    (define get-row
-      (lambda (x)
-        (let ((row  (assq x table)))
-          (if (pair? row)
-              row
-              (let ((row  (list x)))
-                (set! table (cons row table))
-                row)))))
+;;     (define get-row
+;;       (lambda (x)
+;;         (let ((row  (assq x table)))
+;;           (if (pair? row)
+;;               row
+;;               (let ((row  (list x)))
+;;                 (set! table (cons row table))
+;;                 row)))))
 
-    (define is-in-row?
-      (lambda (y row)
-        (if (pair? (memq y row))
-            #t
-            (begin
-              (set-cdr! row (cons y (cdr row)))
-              #f))))
+;;     (define is-in-row?
+;;       (lambda (y row)
+;;         (if (pair? (memq y row))
+;;             #t
+;;             (begin
+;;               (set-cdr! row (cons y (cdr row)))
+;;               #f))))
 
-    (define aux
-      (lambda (x y)
-        (cond ((and (kernel-pair? x) (kernel-pair? y))
-                 (if (is-in-row? y (get-row x))
-                     #t
-                     (and (aux (kernel-car x) (kernel-car y))
-                          (aux (kernel-cdr x) (kernel-cdr y)))))
-              ((and (kernel-number? x) (kernel-number? y))
-                 (kernel-=? x y))
-              ((and (string? x) (string? y))
-                 (string=? x y))
-              (else
-                 (eq? x y)))))
+;;     (define aux
+;;       (lambda (x y)
+;;         (cond ((and (kernel-pair? x) (kernel-pair? y))
+;;                  (if (is-in-row? y (get-row x))
+;;                      #t
+;;                      (and (aux (kernel-car x) (kernel-car y))
+;;                           (aux (kernel-cdr x) (kernel-cdr y)))))
+;;               ((and (kernel-number? x) (kernel-number? y))
+;;                  (kernel-=? x y))
+;;               ((and (string? x) (string? y))
+;;                  (string=? x y))
+;;               (else
+;;                  (eq? x y)))))
 
-    (aux x y)))
+;;     (aux x y)))
+
+;(set-version (list 0.1 0))
+;(set-revision-date 2007 8 5)
+
+)
