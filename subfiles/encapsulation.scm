@@ -17,9 +17,10 @@
 
 (library (subfiles encapsulation)
   (export)
-  (import (rnrs))
+  (import (rnrs)
+          (subfiles revision))
 
-; XXX
+; XXX: kernel-pair, applicative -> operative
 ;; (define make-encapsulation-type
 ;;   (let ((counter  0))
 ;;     (lambda ()
@@ -49,9 +50,8 @@
 ;;               "decapsulator"
 ;;               1 1 this-type?)))))))
 
-; XXX
-;; (set-version (list 0.0 0)
-;;              (list 0.1 0))
-;; (set-revision-date 2007 8 4)
+(set-version (list 0.0 0)
+             (list 0.1 0))
+(set-revision-date 2007 8 4)
 
 )
