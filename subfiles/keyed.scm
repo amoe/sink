@@ -25,7 +25,8 @@
 ;
 
 (library (subfiles keyed)
-  (export)
+  (export get-fresh-key
+          make-alist)
   (import (rnrs)
           (subfiles revision))
 

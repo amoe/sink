@@ -12,7 +12,10 @@
 
 (library (subfiles port)
   (export)
-  (import (rnrs))
+  (import (rnrs)
+          (subfiles object)
+          (subfiles keyed)
+          (subfiles revision))
 
 (define make-kernel-input-port
   (lambda (scheme-input-port)
@@ -32,9 +35,8 @@
           ((name)        name)
           ((output-port) scheme-output-port))))))
 
-; XXX
-;(define kernel-input-port?  (make-object-type-predicate 'input-port))
-;(define kernel-output-port? (make-object-type-predicate 'output-port))
+(define kernel-input-port?  (make-object-type-predicate 'input-port))
+(define kernel-output-port? (make-object-type-predicate 'output-port))
 
 ;
 ; Opens a Kernel port, or signals an error.
@@ -154,9 +156,9 @@
 ; for the Kernel current-input-port and current-output-port.
 ;
 
-;; (define kip-key  (get-fresh-key))
+(define kip-key  (get-fresh-key))
 
-; XXX: Keyed stuff
+; XXX: Context
 ;; (define get-kernel-current-input-port
 ;;       (lambda (context)
 ;;         (context-keyed-lookup kip-key context)))
@@ -165,16 +167,16 @@
 ;;       (lambda (proc parent kip)
 ;;         (call-with-keyed-context proc parent kip-key kip)))
 
-;; (define make-top-level-input-port-alist
-;;       (lambda ()
-;;         (let ((kip  (make-kernel-input-port (current-input-port))))
-;;           (suggest-object-name kip "standard-input-port")
-;;           (make-alist
-;;            ()
-;;            kip-key
-;;            kip)))))
+(define make-top-level-input-port-alist
+      (lambda ()
+        (let ((kip  (make-kernel-input-port (current-input-port))))
+          (suggest-object-name kip "standard-input-port")
+          (make-alist
+           '()
+           kip-key
+           kip))))
 
-;; (define kop-key  (get-fresh-key))
+(define kop-key  (get-fresh-key))
 
 ;; (define get-kernel-current-output-port
 ;;       (lambda (context)
@@ -184,22 +186,22 @@
 ;;       (lambda (proc parent kop)
 ;;         (call-with-keyed-context proc parent kop-key kop)))
 
-;; (define make-top-level-output-port-alist
-;;       (lambda ()
-;;         (let ((kop  (make-kernel-output-port (current-output-port))))
-;;           (suggest-object-name kop "standard-output-port")
-;;           (make-alist
-;;            ()
-;;            kop-key
-;;            kop)))))
+(define make-top-level-output-port-alist
+      (lambda ()
+        (let ((kop  (make-kernel-output-port (current-output-port))))
+          (suggest-object-name kop "standard-output-port")
+          (make-alist
+           '()
+           kop-key
+           kop))))
 
-;; (define make-top-level-ports-alist
-;;   (lambda ()
-;;     (append (make-top-level-input-port-alist)
-;;             (make-top-level-output-port-alist)))))
+(define make-top-level-ports-alist
+  (lambda ()
+    (append (make-top-level-input-port-alist)
+            (make-top-level-output-port-alist))))
 
-;; (set-version (list 0.0 0)
-;;              (list 0.1 0))
-;; (set-revision-date 2007 8 4)
+(set-version (list 0.0 0)
+             (list 0.1 0))
+(set-revision-date 2007 8 4)
 
 )
