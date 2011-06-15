@@ -10,7 +10,9 @@
 
 (library (subfiles ignore)
   (export)
-  (import (rnrs))
+  (import (rnrs)
+          (subfiles object)
+          (subfiles revision))
 
 (define ignore (let ((name  (list #f)))
                  (lambda (message)
@@ -18,14 +20,13 @@
                      ((type) 'ignore)
                      ((name) name)))))
 
-; XXX
-;(define ignore? (make-object-type-predicate 'ignore))
+(define ignore? (make-object-type-predicate 'ignore))
+
+(set-version (list 0.0 0)
+             (list 0.1 0))
+(set-revision-date 2007 8 4)
+
 
 )
 
-
-; XXX
-;; (set-version (list 0.0 0)
-;;              (list 0.1 0))
-;; (set-revision-date 2007 8 4)
 
