@@ -55,7 +55,8 @@
   (export make-object-type-predicate
           designate-name-inheritor!)
   (import (rnrs)
-          (rnrs mutable-pairs))
+          (rnrs mutable-pairs)
+          (subfiles revision))
 
 ;
 ; Determines whether all its arguments are objects.
@@ -126,8 +127,8 @@
                                                 "]"))
             (else           (string-append "#[" type "]"))))))
 
-;; (set-version (list 0.0 0)
-;;              (list 0.1 0))
-;; (set-revision-date 2007 8 4)
+(set-version (list 0.0 0)
+             (list 0.1 0))
+(set-revision-date 2007 8 4)
 
 )
