@@ -1,18 +1,6 @@
 ; This file is part of SINK, a Scheme-based Interpreter for Not-quite Kernel
 ; Copyright (c) 2009 John N. Shutt
 
-(set-version (list 0.0 1)
-             (list 0.1 1))
-(set-revision-date 2009 9 7)
-
-; Naive implementation of letrec* from Ghuloum's "Fixing Letrec (reloaded)"
-(define-syntax letrec*
-  (syntax-rules ()
-    ((_ ((var init) ...) b b* ...)
-     (let ((var #f) ...)
-       (set! var init) ...
-       (let () b b* ...)))))
-
 ;;;;;;;;;;;;
 ; contexts ;
 ;;;;;;;;;;;;
@@ -67,6 +55,11 @@
 ; time.
 ;
 
+(library (subfiles context)
+  (export)
+  (import (rnrs)
+          (rnrs mutable-pairs))
+
 (define make-context
   (lambda (receiver parent entry-guards exit-guards
                     error-context terminal-context alist)
@@ -85,7 +78,8 @@
           ((terminal-context) terminal-context)
           ((alist)            alist))))))
 
-(define context? (make-object-type-predicate 'continuation))
+; XXX
+;(define context? (make-object-type-predicate 'continuation))
 
 ;
 ; A call to make-top-level-context may return multiple times.  The first time,
@@ -106,45 +100,46 @@
 ;   The top-level context's alist is provided by
 ; make-top-level-dynamic-alist.
 ;    
-(define make-top-level-context
-  (lambda (error-handler)
-    (call-with-current-continuation
-      (lambda (c)
-        (letrec* ((receiver
-                   (lambda ignore (c normal-context)))
-                 (alist
-                   (make-top-level-dynamic-alist))
-                 (terminal-context
-                   (let ((delegate  (make-context
-                                      (lambda ignore (c ()))
-                                      () () () () () alist)))
-                     (lambda (message)
-                       (case message
-                         ((error-context)     error-context)
-                         ((terminal-context)  terminal-context)
-                         (else                (delegate message))))))
-                 (error-context
-                   (let ((delegate  (make-context
-                                      (lambda (ed)
-                                        (receiver (error-handler ed)))
-                                      () () () () () alist)))
-                     (lambda (message)
-                       (case message
-                         ((parent)            terminal-context)
-                         ((error-context)     error-context)
-                         ((terminal-context)  terminal-context)
-                         (else                (delegate message))))))
-                 (normal-context
-                   (let ((delegate  (make-context
-                                      receiver
-                                      () () () () () alist)))
-                     (lambda (message)
-                       (case message
-                         ((parent)            terminal-context)
-                         ((error-context)     error-context)
-                         ((terminal-context)  terminal-context)
-                         (else                (delegate message)))))))
-          (receiver))))))
+; XXX: MAKE-TOP-LEVEL-DYNAMIC-ALIST
+;; (define make-top-level-context
+;;   (lambda (error-handler)
+;;     (call-with-current-continuation
+;;       (lambda (c)
+;;         (letrec* ((receiver
+;;                    (lambda ignore (c normal-context)))
+;;                  (alist
+;;                    (make-top-level-dynamic-alist))
+;;                  (terminal-context
+;;                    (let ((delegate  (make-context
+;;                                       (lambda ignore (c ()))
+;;                                       () () () () () alist)))
+;;                      (lambda (message)
+;;                        (case message
+;;                          ((error-context)     error-context)
+;;                          ((terminal-context)  terminal-context)
+;;                          (else                (delegate message))))))
+;;                  (error-context
+;;                    (let ((delegate  (make-context
+;;                                       (lambda (ed)
+;;                                         (receiver (error-handler ed)))
+;;                                       () () () () () alist)))
+;;                      (lambda (message)
+;;                        (case message
+;;                          ((parent)            terminal-context)
+;;                          ((error-context)     error-context)
+;;                          ((terminal-context)  terminal-context)
+;;                          (else                (delegate message))))))
+;;                  (normal-context
+;;                    (let ((delegate  (make-context
+;;                                       receiver
+;;                                       () () () () () alist)))
+;;                      (lambda (message)
+;;                        (case message
+;;                          ((parent)            terminal-context)
+;;                          ((error-context)     error-context)
+;;                          ((terminal-context)  terminal-context)
+;;                          (else                (delegate message)))))))
+;;           (receiver))))))
 
 ;
 ; call-with-guarded-context takes as arguments a procedure, parent context, and
@@ -174,15 +169,16 @@
 ; given keyed binding.
 ;
 
-(define call-with-keyed-context
-  (lambda (proc parent key value)
-    (call-with-current-continuation
-      (lambda (receiver)
-        (let ((error-context     (parent 'error-context))
-              (terminal-context  (parent 'terminal-context))
-              (alist             (make-alist (parent 'alist) key value)))
-          (proc (make-context receiver parent () ()
-                              error-context terminal-context alist)))))))
+; XXX: MAKE-ALIST
+;; (define call-with-keyed-context
+;;   (lambda (proc parent key value)
+;;     (call-with-current-continuation
+;;       (lambda (receiver)
+;;         (let ((error-context     (parent 'error-context))
+;;               (terminal-context  (parent 'terminal-context))
+;;               (alist             (make-alist (parent 'alist) key value)))
+;;           (proc (make-context receiver parent () ()
+;;                               error-context terminal-context alist)))))))
 
 ;
 ; Given the internal key for a keyed variable, and a context, looks up the
@@ -190,39 +186,42 @@
 ; if found, or signals an error.
 ;
 
-(define context-keyed-lookup
-  (lambda (key context)
-    (let ((binding  (alist-lookup key (context 'alist))))
-      (if (pair? binding)
-          (cdr binding)
-          (error-pass
-            (make-error-descriptor
-              "Attempted to look up an unbound keyed dynamic variable"
-              (list "in " (list context)))
-            context)))))
+; XXX: ALIST-LOOKUP
+;; (define context-keyed-lookup
+;;   (lambda (key context)
+;;     (let ((binding  (alist-lookup key (context 'alist))))
+;;       (if (pair? binding)
+;;           (cdr binding)
+;;           (error-pass
+;;             (make-error-descriptor
+;;               "Attempted to look up an unbound keyed dynamic variable"
+;;               (list "in " (list context)))
+;;             context)))))
 
 ;
 ; Given an environment and a context, binds symbols root-continuation and
 ; error-continuation in the given environment to the terminal-context and
 ; error-context of the given context.
 ;
-(define initialize-context-bindings
-  (lambda (env context)
-    (add-bindings! env 'root-continuation (context 'terminal-context)
-                       'error-continuation (context 'error-context))))
+; XXX: ADD-BINDINGS!
+;; (define initialize-context-bindings
+;;   (lambda (env context)
+;;     (add-bindings! env 'root-continuation (context 'terminal-context)
+;;                        'error-continuation (context 'error-context))))
 
 ;
 ; Given a context, constructs an applicative that abnormally passes its
 ; argument tree to that context.
 ;
-(define context->applicative
-  (lambda (dest-context)
-    (let ((this
-            (action->applicative
-              (lambda (operand-tree env source-context)
-                (abnormally-pass operand-tree source-context dest-context)))))
-      (designate-name-inheritor! (unwrap this) dest-context)
-      this)))
+; XXX: ACTION->APPLICATIVE
+;; (define context->applicative
+;;   (lambda (dest-context)
+;;     (let ((this
+;;             (action->applicative
+;;               (lambda (operand-tree env source-context)
+;;                 (abnormally-pass operand-tree source-context dest-context)))))
+;;       (designate-name-inheritor! (unwrap this) dest-context)
+;;       this)))
 
 ;
 ; Given an error descriptor and the context in which the error occurred,
@@ -321,9 +320,15 @@
 
     (lambda (value source destination)
       (set-marks! source #t)
-      (let ((selected  (select-entry-interceptors destination ())))
+      (let ((selected  (select-entry-interceptors destination '())))
         (set-marks! source #f)
         (set-marks! destination #t)
         (let ((selected  (select-exit-interceptors source selected)))
           (set-marks! destination #f)
           ((destination 'receiver) (serial-transform selected value)))))))
+
+;; (set-version (list 0.0 1)
+;;              (list 0.1 1))
+;; (set-revision-date 2009 9 7)
+
+)
