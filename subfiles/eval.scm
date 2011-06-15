@@ -7,7 +7,8 @@
 
 (library (subfiles eval)
   (export)
-  (import (rnrs))
+  (import (rnrs)
+          (subfiles revision))
 
 ;
 ; Evaluate an expression in an environment, with given youngest enclosing
@@ -51,7 +52,7 @@
 ; youngest enclosing context; given also the applicative for which the list is
 ; being provided, just in case it's needed for an error message.
 ;
-; XXX
+; XXX: kernel-list (cycles)
 ;; (define map-eval
 ;;   (lambda (operand-tree env context applicative)
 ;;     (if (not (kernel-list? operand-tree))
@@ -64,8 +65,8 @@
 ;;           (lambda (operand) (eval operand env context))
 ;;           operand-tree))))
 
-;; (set-version (list 0.0 0)
-;;              (list 0.1 0))
-;; (set-revision-date 2007 8 4)
+(set-version (list 0.0 0)
+             (list 0.1 0))
+(set-revision-date 2007 8 4)
 
 )
