@@ -43,25 +43,18 @@
 ; that the interpreter as a whole has yet to achieve.
 ;
 
-(define set-version       ())
-(define get-version       ())
+(library (subfiles revision)
+  (export)
+  (import (rnrs)
+          (rnrs mutable-pairs))
 
-(define set-revision-date ())
-(define get-revision-date ())
+(define first-flag     #t)   ; cleared by first call to set-version
+(define known-versions '())   ; list of records of the form (version count)
+(define known-year     2007)
+(define known-month    8)
+(define known-day      4)
 
-(let ((first-flag     #t)   ; cleared by first call to set-version
-      (known-versions ())   ; list of records of the form (version count)
-      (known-year     2007)
-      (known-month    8)
-      (known-day      4))
-
-  (define filter
-    (lambda (proc? ls)
-      (cond ((null? ls)        ls)
-            ((proc? (car ls))  (cons (car ls) (filter proc? (cdr ls))))
-            (#t                (filter proc? (cdr ls))))))
-
-  (set! set-version
+  (define set-version
     (lambda versions ; list of records of the form (version count)
       (if first-flag
           (begin
@@ -80,7 +73,7 @@
   ;
   ; Set revision year, month, and day to be no earlier than given values.
   ;
-  (set! set-revision-date
+  (define set-revision-date
     (lambda (new-year new-month new-day)
       (cond ((< new-year known-year))
             ((> new-year known-year)
@@ -98,7 +91,7 @@
   ; Get a string describing the known version number, revision number, and
   ; revision letter.
   ;
-  (set! get-version
+  (define get-version
     (lambda ()
       (if (null? known-versions)
           "unnormalized."
@@ -110,7 +103,7 @@
                                " m "
                                (number->string c)))))))
 
-  (set! get-revision-date
+  (define get-revision-date
     (lambda ()
       (string-append
         (number->string known-day)
@@ -121,3 +114,5 @@
                   (- known-month 1))
         " "
         (number->string known-year)))))
+
+)
