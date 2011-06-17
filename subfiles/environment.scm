@@ -49,7 +49,6 @@
 ; public constructor/accessors
 ;
 
-; XXX: MERGE-ALISTS
 (define make-environment
   (lambda parents
     (internal-make-environment
@@ -66,14 +65,12 @@
 ;;   (lambda ()
 ;;     (make-environment ground-environment)))
 
-; XXX: MAKE-ALIST
 (define make-environment-with-keyed-binding
   (lambda (key value parent)
     (internal-make-environment
       (cons (make-empty-frame) (get-environment-frames parent))
       (make-alist (get-environment-alist parent) key value))))
 
-; XXX: object
 (define environment? (make-object-type-predicate 'environment))
 
 (define environment-keyed-lookup
@@ -90,7 +87,6 @@
 ;
 ; Returns the value bound to name if there is one, otherwise throws an error.
 ;
-; XXX: ERROR-PASS
 (define lookup
   (lambda (name env context)
     (let ((binding  (get-binding-from-frames
@@ -167,7 +163,6 @@
 ; parameter-tree/object mismatch), returns an error-descriptor to whose
 ; first line " when calling ..." might reasonably be appended.
 ;
-; XXX: VALID-PTREE? (SF)
 (define match!
   (lambda (env ptree object)
 
@@ -220,7 +215,6 @@
 ; bindings when possible, creating new bindings otherwise.  Arguments as
 ; add-bindings!, except that the first argument is the local frame.
 ;
-; XXX: OBJECT?
 (define add-bindings-to-frame!
   (lambda (frame . x)
     (if (pair? x)
