@@ -64,8 +64,7 @@
           (subfiles object)
           (subfiles keyed)
           (subfiles error)
-          (subfiles revision)
-          (subfiles applicative))
+          (subfiles revision))
 
 (define make-context
   (lambda (receiver parent entry-guards exit-guards
