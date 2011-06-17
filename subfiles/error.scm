@@ -16,7 +16,8 @@
   (import (rnrs)
           (rnrs mutable-pairs)
           (subfiles object)
-          (subfiles revision))
+          (subfiles revision)
+          (subfiles kernel-pair))
 
 (define make-error-descriptor
   (lambda content
@@ -28,7 +29,6 @@
           ((name)    name)
           ((content) content))))))
 
-; XXX
 (define error-descriptor? (make-object-type-predicate 'error-descriptor))
 
 (define get-error-content (lambda (x) (x 'content)))
@@ -45,53 +45,52 @@
 ; Since error descriptors can only be created directly by the interpreter,
 ; if the internal format is wrong, it's SINK's fault.
 ;
-; XXX: WRITE-TREE
-;; (define describe-error
-;;   (lambda (error-descriptor)
+(define describe-error
+  (lambda (error-descriptor)
 
-;;     ; number of columns expended on strings on the current line
-;;     (define column 0)
+    ; number of columns expended on strings on the current line
+    (define column 0)
 
-;;     ; single element on a line
-;;     (define aux3
-;;       (lambda (element)
-;;         (cond ((string? element)
-;;                  (let ((new-column  (+ column (string-length element))))
-;;                    (if (< 79 new-column)
-;;                        (begin
-;;                          (newline)
-;;                          (display " ;   ")
-;;                          (set! column 5))
-;;                        (set! column new-column)))
-;;                  (display element))
-;;               ((and (pair? element)
-;;                     (null? (cdr element)))
-;;                  (write-tree (car element) (current-output-port)))
-;;               (else
-;;                 (display " [[")
-;;                 (write-tree element)
-;;                 (display "]] ")))))
+    ; single element on a line
+    (define aux3
+      (lambda (element)
+        (cond ((string? element)
+                 (let ((new-column  (+ column (string-length element))))
+                   (if (< 79 new-column)
+                       (begin
+                         (newline)
+                         (display " ;   ")
+                         (set! column 5))
+                       (set! column new-column)))
+                 (display element))
+              ((and (pair? element)
+                    (null? (cdr element)))
+                 (write-tree (car element) (current-output-port)))
+              (else
+                (display " [[")
+                (write-tree element)
+                (display "]] ")))))
 
-;;     ; list of elements on a line
-;;     (define aux2
-;;       (lambda (ls)
-;;         (if (pair? ls)
-;;             (begin
-;;               (aux3 (car ls))
-;;               (aux2 (cdr ls))))))
+    ; list of elements on a line
+    (define aux2
+      (lambda (ls)
+        (if (pair? ls)
+            (begin
+              (aux3 (car ls))
+              (aux2 (cdr ls))))))
 
-;;     ; list of lines
-;;     (define aux
-;;       (lambda (lss)
-;;         (if (pair? lss)
-;;             (begin
-;;               (display " ; ")
-;;               (set! column 3)
-;;               (aux2 (car lss))
-;;               (newline)
-;;               (aux (cdr lss))))))
+    ; list of lines
+    (define aux
+      (lambda (lss)
+        (if (pair? lss)
+            (begin
+              (display " ; ")
+              (set! column 3)
+              (aux2 (car lss))
+              (newline)
+              (aux (cdr lss))))))
 
-;;     (aux (get-error-content error-descriptor))))
+    (aux (get-error-content error-descriptor))))
 
 
 (set-version (list 0.0 2)
