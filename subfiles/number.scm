@@ -15,7 +15,7 @@
 ;
 
 (library (subfiles number)
-  (export)
+  (export exact-positive-infinity)
   (import (rnrs)
           (subfiles object)
           (subfiles kernel-pair)

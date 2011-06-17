@@ -9,7 +9,7 @@
 ;
 
 (library (subfiles inert)
-  (export)
+  (export inert)
   (import (rnrs)
           (subfiles object)
           (subfiles revision))
