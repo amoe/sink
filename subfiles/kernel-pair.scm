@@ -54,7 +54,8 @@
   (export kernel-car
           kernel-cdr
           kernel-cons
-          kernel-set-cdr!)
+          kernel-set-cdr!
+          kernel-list)
   (import (rnrs)
           (rnrs mutable-pairs)
           (subfiles object)

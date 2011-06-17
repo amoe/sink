@@ -18,9 +18,11 @@
 (library (subfiles encapsulation)
   (export)
   (import (rnrs)
-          (subfiles revision))
+          (subfiles revision)
+          (subfiles object)
+          (subfiles kernel-pair))
 
-; XXX: kernel-pair, applicative -> operative
+; XXX: NAIVE->CHECKED-APPLICATIVE (applicative)
 ;; (define make-encapsulation-type
 ;;   (let ((counter  0))
 ;;     (lambda ()
