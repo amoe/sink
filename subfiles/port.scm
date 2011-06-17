@@ -11,7 +11,7 @@
 ;
 
 (library (subfiles port)
-  (export)
+  (export make-top-level-input-port-alist)
   (import (rnrs)
           (subfiles object)
           (subfiles keyed)
