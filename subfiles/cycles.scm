@@ -34,7 +34,8 @@
 
 (library (subfiles cycles)
   (export kernel-list?
-          simple-map)
+          simple-map
+          get-list-metrics)
   (import (rnrs)
           (rnrs mutable-pairs)
           (subfiles kernel-pair)

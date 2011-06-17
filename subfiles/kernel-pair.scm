@@ -59,7 +59,8 @@
           kernel-pair?
           write-tree
           display-tree
-          cyclic-tree?)
+          cyclic-tree?
+          kernel-cadr)
   (import (rnrs)
           (rnrs mutable-pairs)
           (subfiles object)

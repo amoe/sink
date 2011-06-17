@@ -18,7 +18,9 @@
           (subfiles object)
           (subfiles context)
           (subfiles error)
-          (subfiles revision))
+          (subfiles revision)
+          (subfiles cycles)
+          (subfiles kernel-pair))
 
 (define action->operative
   (lambda (action)
@@ -29,7 +31,6 @@
           ((name)   name)
           ((action) action))))))
 
-; XXX
 (define operative? (make-object-type-predicate 'operative))
 
 ;
@@ -59,44 +60,43 @@
 ; the result is the list metrics of the operand list.
 ;
 
-; XXX: GET-LIST-METRICS
-;; (define check-operand-list
-;;   (lambda (operands min max . predicates)
+(define check-operand-list
+  (lambda (operands min max . predicates)
 
-;;     (define aux
-;;       (lambda (p k operands . predicates)
-;;         (cond ((<= k 0)  ())
-;;               (((car predicates) (kernel-car operands))
-;;                  (apply aux p
-;;                             (- k 1)
-;;                             (kernel-cdr operands)
-;;                             (if (null? (cdr predicates))
-;;                                 predicates
-;;                                 (cdr predicates))))
-;;               (else
-;;                 (string-append
-;;                   "Operand #" (number->string (- p k -1))
-;;                   " has wrong type")))))
+    (define aux
+      (lambda (p k operands . predicates)
+        (cond ((<= k 0)  '())
+              (((car predicates) (kernel-car operands))
+                 (apply aux p
+                            (- k 1)
+                            (kernel-cdr operands)
+                            (if (null? (cdr predicates))
+                                predicates
+                                (cdr predicates))))
+              (else
+                (string-append
+                  "Operand #" (number->string (- p k -1))
+                  " has wrong type")))))
 
-;;     (let* ((metrics  (get-list-metrics operands))
-;;            (p  (car metrics))
-;;            (n  (cadr metrics))
-;;            (c  (cadddr metrics)))
-;;       (cond ((and (= n 0) (= c 0))  "Operand tree is not a list")
-;;             ((and (>= max 0)
-;;                   (or (> p max) (> c 0)))
-;;                (string-append
-;;                  "Too many operands (more than " (number->string max) ")"))
-;;             ((< p min)
-;;                (string-append
-;;                  "Not enough operands (fewer than " (number->string min) ")"))
-;;             ((null? predicates)
-;;                metrics)
-;;             (else
-;;                (let ((emsg  (apply aux p p operands predicates)))
-;;                  (if (string? emsg)
-;;                      emsg
-;;                      metrics)))))))
+    (let* ((metrics  (get-list-metrics operands))
+           (p  (car metrics))
+           (n  (cadr metrics))
+           (c  (cadddr metrics)))
+      (cond ((and (= n 0) (= c 0))  "Operand tree is not a list")
+            ((and (>= max 0)
+                  (or (> p max) (> c 0)))
+               (string-append
+                 "Too many operands (more than " (number->string max) ")"))
+            ((< p min)
+               (string-append
+                 "Not enough operands (fewer than " (number->string min) ")"))
+            ((null? predicates)
+               metrics)
+            (else
+               (let ((emsg  (apply aux p p operands predicates)))
+                 (if (string? emsg)
+                     emsg
+                     metrics)))))))
 
 ;
 ; Given a "naive action", returns an action that does the same thing.
@@ -143,22 +143,21 @@
 ; The first argument is the action to be safeguarded, and the second and later
 ; arguments are as the second and later arguments to check-operand-list.
 ;
-; XXX: CHECK-OPERAND-LIST (SF)
-;; (define action->checked-operative
-;;   (lambda (action . criteria)
-;;     (letrec ((this  (action->operative
-;;                       (lambda (operand-tree env context)
-;;                         (let ((result  (apply check-operand-list
-;;                                               operand-tree criteria)))
-;;                           (if (string? result)
-;;                               (error-pass
-;;                                 (make-error-descriptor
-;;                                   (list result " when calling "
-;;                                         (describe-object this))
-;;                                   (list "Operand tree: " (list operand-tree)))
-;;                                 context)
-;;                               (action operand-tree env context)))))))
-;;       this)))
+(define action->checked-operative
+  (lambda (action . criteria)
+    (letrec ((this  (action->operative
+                      (lambda (operand-tree env context)
+                        (let ((result  (apply check-operand-list
+                                              operand-tree criteria)))
+                          (if (string? result)
+                              (error-pass
+                                (make-error-descriptor
+                                  (list result " when calling "
+                                        (describe-object this))
+                                  (list "Operand tree: " (list operand-tree)))
+                                context)
+                              (action operand-tree env context)))))))
+      this)))
 
 ;
 ; metered-action->checked-operative
@@ -170,23 +169,22 @@
 ; the action to know the shape of the operand tree without a redundant call to
 ; get-list-metrics.
 ;
-; XXX: CHECK-OPERAND-LIST (SF)
-;; (define metered-action->checked-operative
-;;   (lambda (action . criteria)
-;;     (letrec ((this  (action->operative
-;;                       (lambda (operand-tree env context)
-;;                         (let ((result  (apply check-operand-list
-;;                                               operand-tree criteria)))
-;;                           (if (string? result)
-;;                               (error-pass
-;;                                 (make-error-descriptor
-;;                                   (list result " when calling "
-;;                                         (describe-object this))
-;;                                   (list "Operand tree: " (list operand-tree)))
-;;                                 context)
-;;                               (action (cons result operand-tree)
-;;                                       env context)))))))
-;;       this)))
+(define metered-action->checked-operative
+  (lambda (action . criteria)
+    (letrec ((this  (action->operative
+                      (lambda (operand-tree env context)
+                        (let ((result  (apply check-operand-list
+                                              operand-tree criteria)))
+                          (if (string? result)
+                              (error-pass
+                                (make-error-descriptor
+                                  (list result " when calling "
+                                        (describe-object this))
+                                  (list "Operand tree: " (list operand-tree)))
+                                context)
+                              (action (cons result operand-tree)
+                                      env context)))))))
+      this)))
 
 ;
 ; naive->checked-operative
@@ -196,12 +194,11 @@
 ;
 ; This is the composition of naive->action with action->checked-operative.
 ;
-; XXX: ACTION->CHECKED-OPERATIVE (SF)
-;; (define naive->checked-operative
-;;   (lambda (naive name . criteria)
-;;     (apply action->checked-operative
-;;            (naive->action naive name)
-;;            criteria)))
+(define naive->checked-operative
+  (lambda (naive name . criteria)
+    (apply action->checked-operative
+           (naive->action naive name)
+           criteria)))
 
 ;
 ; metered-naive->checked-operative
@@ -211,12 +208,11 @@
 ; operand tree.  This is the composition of naive->action with
 ; metered-action->checked-operative.
 ;
-; XXX: METERED-ACTION->CHECKED-OPERATIVE (SF)
-;; (define metered-naive->checked-operative
-;;   (lambda (naive name . criteria)
-;;     (apply metered-action->checked-operative
-;;            (naive->action naive name)
-;;            criteria)))
+(define metered-naive->checked-operative
+  (lambda (naive name . criteria)
+    (apply metered-action->checked-operative
+           (naive->action naive name)
+           criteria)))
 
 ;
 ; Given a Scheme unary predicate, returns an operative that determines whether
@@ -224,20 +220,19 @@
 ;
 ; The predicate must not throw a Scheme error.
 ;
-; XXX: METERED-ACTION->CHECKED-OPERATIVE (SF)
-;; (define unary-predicate->operative
-;;   (lambda (unary)
+(define unary-predicate->operative
+  (lambda (unary)
 
-;;     (define aux
-;;       (lambda (n operands)
-;;         (cond ((<= n 0)  #t)
-;;               ((not (unary (kernel-car operands)))  #f)
-;;               (else  (aux (- n 1) (kernel-cdr operands))))))
+    (define aux
+      (lambda (n operands)
+        (cond ((<= n 0)  #t)
+              ((not (unary (kernel-car operands)))  #f)
+              (else  (aux (- n 1) (kernel-cdr operands))))))
 
-;;     (metered-action->checked-operative
-;;       (lambda (x env context)
-;;         (aux (caar x) (cdr x)))
-;;       0 -1)))
+    (metered-action->checked-operative
+      (lambda (x env context)
+        (aux (caar x) (cdr x)))
+      0 -1)))
 
 ;
 ; Given a Scheme binary predicate and a type predicate that must be satisfied
@@ -248,42 +243,41 @@
 ; The predicate must not throw a Scheme error, but it may return an error
 ; message string instead of a boolean.
 ;
-; XXX: METERED-ACTION->CHECKED-OPERATIVE (SF)
-;; (define binary-predicate->operative
-;;   (lambda (binary type?)
-;;     (define this
-;;       (metered-action->checked-operative
-;;         (lambda (x env context)
-;;           (let ((p  (car (car x)))
-;;                 (c  (cadddr (car x)))
-;;                 (operand-tree  (cdr x)))
+(define binary-predicate->operative
+  (lambda (binary type?)
+    (define this
+      (metered-action->checked-operative
+        (lambda (x env context)
+          (let ((p  (car (car x)))
+                (c  (cadddr (car x)))
+                (operand-tree  (cdr x)))
 
-;;             (define aux
-;;               (lambda (n operands)
-;;                 (if (<= n 1)
-;;                     #t
-;;                     (let ((result  (binary (kernel-car operands)
-;;                                            (kernel-cadr operands))))
-;;                       (if (string? result)
-;;                           (error-pass
-;;                             (make-error-descriptor
-;;                               (list result " when calling primitive "
-;;                                     (describe-object this))
-;;                               (list "Failed comparing objects:  "
-;;                                     (list (kernel-car operands)) "  "
-;;                                     (list (kernel-cadr operands)))
-;;                               (list "Operand tree: " (list operand-tree)))
-;;                             context)
-;;                           (if (not result)
-;;                               #f
-;;                               (aux (- n 1) (kernel-cdr operands))))))))
+            (define aux
+              (lambda (n operands)
+                (if (<= n 1)
+                    #t
+                    (let ((result  (binary (kernel-car operands)
+                                           (kernel-cadr operands))))
+                      (if (string? result)
+                          (error-pass
+                            (make-error-descriptor
+                              (list result " when calling primitive "
+                                    (describe-object this))
+                              (list "Failed comparing objects:  "
+                                    (list (kernel-car operands)) "  "
+                                    (list (kernel-cadr operands)))
+                              (list "Operand tree: " (list operand-tree)))
+                            context)
+                          (if (not result)
+                              #f
+                              (aux (- n 1) (kernel-cdr operands))))))))
 
-;;             (aux (+ p (if (> c 0) 1 0))
-;;                  operand-tree)))
+            (aux (+ p (if (> c 0) 1 0))
+                 operand-tree)))
 
-;;         0 -1 type?))
+        0 -1 type?))
 
-;;     this))
+    this))
 
 ;
 ; Given a procedure with Scheme-style interface (that either returns a result
