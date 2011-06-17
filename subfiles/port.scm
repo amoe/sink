@@ -15,7 +15,10 @@
   (import (rnrs)
           (subfiles object)
           (subfiles keyed)
-          (subfiles revision))
+          (subfiles revision)
+          (subfiles operative)
+          (subfiles kernel-pair)
+          (subfiles context))
 
 (define make-kernel-input-port
   (lambda (scheme-input-port)
@@ -43,50 +46,49 @@
 ;
 
 ; XXX: APPLY-SAFELY
-;; (define open-kernel-input-file
-;;   (lambda (name context)
-;;     (make-kernel-input-port
-;;       (apply-safely
-;;         open-input-file
-;;         (list name)
-;;         (string-append "Cannot open file for input: \"" name "\"")
-;;         context))))
+(define open-kernel-input-file
+  (lambda (name context)
+    (make-kernel-input-port
+      (apply-safely
+        open-input-file
+        (list name)
+        (string-append "Cannot open file for input: \"" name "\"")
+        context))))
 
-;; (define open-kernel-output-file
-;;   (lambda (name context)
-;;     (make-kernel-output-port
-;;       (apply-safely
-;;         open-output-file
-;;         (list name)
-;;         (string-append "Cannot open file for output: \"" name "\"")
-;;         context))))
+(define open-kernel-output-file
+  (lambda (name context)
+    (make-kernel-output-port
+      (apply-safely
+        open-output-file
+        (list name)
+        (string-append "Cannot open file for output: \"" name "\"")
+        context))))
 
 ;
 ; Closes a Kernel port, or signals an error.
 ;
 
-; XXX: APPLY-SAFELY
-;; (define close-kernel-input-port
-;;   (lambda (kip context)
-;;     (apply-safely
-;;       close-input-port
-;;       (list (kip 'input-port))
-;;       (list "Cannot close " (list kip))
-;;       context)))
+(define close-kernel-input-port
+  (lambda (kip context)
+    (apply-safely
+      close-input-port
+      (list (kip 'input-port))
+      (list "Cannot close " (list kip))
+      context)))
 
-;; (define close-kernel-output-port
-;;   (lambda (kop context)
-;;     (apply-safely
-;;       close-output-port
-;;       (list (kop 'output-port))
-;;       (list "Cannot close " (list kop))
-;;       context)))
+(define close-kernel-output-port
+  (lambda (kop context)
+    (apply-safely
+      close-output-port
+      (list (kop 'output-port))
+      (list "Cannot close " (list kop))
+      context)))
 
 ;
 ; Performs i/o on a Kernel port, or signals an error.
 ;
 
-; XXX: APPLY-SAFELY
+; XXX: SCHEME-READ-OBJECT->KERNEL (kernel-pair)
 ;; (define kernel-read
 ;;   (lambda (kip context)
 ;;     (apply-safely
@@ -95,22 +97,23 @@
 ;;       (list "Failure during read, " (list kip))
 ;;       context)))
 
-;; (define kernel-read-char
-;;   (lambda (kip context)
-;;     (apply-safely
-;;       read-char
-;;       (list (kip 'input-port))
-;;       (list "Failure during read-char, " (list kip))
-;;       context)))
+(define kernel-read-char
+  (lambda (kip context)
+    (apply-safely
+      read-char
+      (list (kip 'input-port))
+      (list "Failure during read-char, " (list kip))
+      context)))
 
-;; (define kernel-peek-char
-;;   (lambda (kip context)
-;;     (apply-safely
-;;       peek-char
-;;       (list (kip 'input-port))
-;;       (list "Failure during peek-char, " (list kip))
-;;       context)))
+(define kernel-peek-char
+  (lambda (kip context)
+    (apply-safely
+      peek-char
+      (list (kip 'input-port))
+      (list "Failure during peek-char, " (list kip))
+      context)))
 
+; XXX NONEXISTENT
 ;; (define kernel-char-ready?
 ;;   (lambda (kip context)
 ;;     (apply-safely
@@ -119,37 +122,37 @@
 ;;       (list "Failure during char-ready?, " (list kip))
 ;;       context)))
 
-;; (define kernel-write
-;;   (lambda (value kop context)
-;;     (apply-safely
-;;       write-tree
-;;       (list value (kop 'output-port))
-;;       (list "Failure during write, " (list kop))
-;;       context)))
+(define kernel-write
+  (lambda (value kop context)
+    (apply-safely
+      write-tree
+      (list value (kop 'output-port))
+      (list "Failure during write, " (list kop))
+      context)))
 
-;; (define kernel-display
-;;   (lambda (value kop context)
-;;     (apply-safely
-;;       display-tree
-;;       (list value (kop 'output-port))
-;;       (list "Failure during display, " (list kop))
-;;       context)))
+(define kernel-display
+  (lambda (value kop context)
+    (apply-safely
+      display-tree
+      (list value (kop 'output-port))
+      (list "Failure during display, " (list kop))
+      context)))
 
-;; (define kernel-newline
-;;   (lambda (kop context)
-;;     (apply-safely
-;;       newline
-;;       (list (kop 'output-port))
-;;       (list "Failure during newline, " (list kop))
-;;       context)))
+(define kernel-newline
+  (lambda (kop context)
+    (apply-safely
+      newline
+      (list (kop 'output-port))
+      (list "Failure during newline, " (list kop))
+      context)))
 
-;; (define kernel-write-char
-;;   (lambda (char kop context)
-;;     (apply-safely
-;;       write-char
-;;       (list char (kop 'output-port))
-;;       (list "Failure during write-char, " (list kop))
-;;       context)))
+(define kernel-write-char
+  (lambda (char kop context)
+    (apply-safely
+      write-char
+      (list char (kop 'output-port))
+      (list "Failure during write-char, " (list kop))
+      context)))
 
 ;
 ; Dynamic-binders, accessors, and top-level-alist constructor
@@ -158,14 +161,13 @@
 
 (define kip-key  (get-fresh-key))
 
-; XXX: Context
-;; (define get-kernel-current-input-port
-;;       (lambda (context)
-;;         (context-keyed-lookup kip-key context)))
+(define get-kernel-current-input-port
+      (lambda (context)
+        (context-keyed-lookup kip-key context)))
 
-;; (define call-with-input-context
-;;       (lambda (proc parent kip)
-;;         (call-with-keyed-context proc parent kip-key kip)))
+(define call-with-input-context
+      (lambda (proc parent kip)
+        (call-with-keyed-context proc parent kip-key kip)))
 
 (define make-top-level-input-port-alist
       (lambda ()
@@ -178,13 +180,13 @@
 
 (define kop-key  (get-fresh-key))
 
-;; (define get-kernel-current-output-port
-;;       (lambda (context)
-;;         (context-keyed-lookup kop-key context)))
+(define get-kernel-current-output-port
+      (lambda (context)
+        (context-keyed-lookup kop-key context)))
 
-;; (define call-with-output-context
-;;       (lambda (proc parent kop)
-;;         (call-with-keyed-context proc parent kop-key kop)))
+(define call-with-output-context
+      (lambda (proc parent kop)
+        (call-with-keyed-context proc parent kop-key kop)))
 
 (define make-top-level-output-port-alist
       (lambda ()

@@ -56,7 +56,9 @@
 ;
 
 (library (subfiles context)
-  (export error-pass)
+  (export error-pass
+          context-keyed-lookup
+          call-with-keyed-context)
   (import (rnrs)
           (rnrs mutable-pairs)
           (subfiles object)

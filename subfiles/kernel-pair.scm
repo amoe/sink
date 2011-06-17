@@ -57,7 +57,8 @@
           kernel-set-cdr!
           kernel-list
           kernel-pair?
-          write-tree)
+          write-tree
+          display-tree)
   (import (rnrs)
           (rnrs mutable-pairs)
           (subfiles object)

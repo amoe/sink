@@ -12,7 +12,8 @@
 (library (subfiles operative)
   (export action->operative
           operative?
-          operate)
+          operate
+          apply-safely)
   (import (rnrs)
           (subfiles object)
           (subfiles context)
