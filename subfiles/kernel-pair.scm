@@ -52,7 +52,9 @@
 
 (library (subfiles kernel-pair)
   (export kernel-car
-          kernel-cdr)
+          kernel-cdr
+          kernel-cons
+          kernel-set-cdr!)
   (import (rnrs)
           (rnrs mutable-pairs))
 

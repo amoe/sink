@@ -34,28 +34,28 @@
 
 (library (subfiles cycles)
   (export)
-  (import (rnrs))
+  (import (rnrs)
+          (subfiles kernel-pair)
+          (subfiles revision))
 
 ;
 ; Given improper kernel-list ls and nonnegative integer k, returns the (k)th
 ; kernel-cdr of ls.  Thus, if k=0, returns ls.
 ;
-; XXX: KERNEL-CDR
-;; (define kernel-list-tail
-;;   (lambda (ls k)
-;;     (if (> k 0)
-;;         (kernel-list-tail (kernel-cdr ls) (- k 1))
-;;         ls)))
+(define kernel-list-tail
+  (lambda (ls k)
+    (if (> k 0)
+        (kernel-list-tail (kernel-cdr ls) (- k 1))
+        ls)))
 
 ;
 ; Given improper kernel-list ls and nonnegative integer k, returns the
 ; kernel-car of the (k)th kernel-cdr of ls.  Thus, if k=0, returns the
 ; kernel-car of ls; if k=1, returns the kernel-cadr of ls; and so on.
 ;
-; XXX: KERNEL-CAR
-;; (define kernel-list-ref
-;;   (lambda (ls k)
-;;     (kernel-car (kernel-list-tail ls k))))
+(define kernel-list-ref
+  (lambda (ls k)
+    (kernel-car (kernel-list-tail ls k))))
 
 ;
 ; Given a value to be construed as an improper kernel-list, returns a list
@@ -179,20 +179,20 @@
 ; bounded-simple-map->list, which returns a list.
 ;
 ; XXX: KERNEL-CAR
-;; (define make-bounded-simple-map
-;;   (lambda (some-cons)
-;;     (letrec ((mapper  (lambda (n-pairs proc ls)
-;;                         (if (> n-pairs 0)
-;;                             (some-cons (proc (kernel-car ls))
-;;                                        (mapper (- n-pairs 1)
-;;                                                proc
-;;                                                (kernel-cdr ls)))
-;;                             ()))))
-;;       mapper)))
+(define make-bounded-simple-map
+  (lambda (some-cons)
+    (letrec ((mapper  (lambda (n-pairs proc ls)
+                        (if (> n-pairs 0)
+                            (some-cons (proc (kernel-car ls))
+                                       (mapper (- n-pairs 1)
+                                               proc
+                                               (kernel-cdr ls)))
+                            '()))))
+      mapper)))
 
 ; XXX: SF
-;; (define bounded-simple-map       (make-bounded-simple-map kernel-cons))
-;; (define bounded-simple-map->list (make-bounded-simple-map cons))
+(define bounded-simple-map       (make-bounded-simple-map kernel-cons))
+(define bounded-simple-map->list (make-bounded-simple-map cons))
 
 ;
 ; Given a kernel-list, returns a freshly allocated list with the same elements
@@ -200,7 +200,7 @@
 ;
 ; If the resultant list certainly won't be mutated, use  kernel-list->list.
 ;
-; XXX: BOUNDED-SIMPLE-MAP->LIST (SF)
+; XXX: GET-LIST-METRICS (SF)
 ;; (define copy-kernel-list->list
 ;;   (lambda (ls)
 ;;     (bounded-simple-map->list (car (get-list-metrics ls))
@@ -215,11 +215,11 @@
 ; prefix length a and cycle length c.
 ;
 ; XXX: KERNEL-SET-CDR!
-;; (define kernel-encycle!
-;;   (lambda (ls a c)
-;;     (if (> c 0)
-;;         (kernel-set-cdr! (kernel-list-tail ls (+ a c -1))
-;;                          (kernel-list-tail ls a)))))
+(define kernel-encycle!
+  (lambda (ls a c)
+    (if (> c 0)
+        (kernel-set-cdr! (kernel-list-tail ls (+ a c -1))
+                         (kernel-list-tail ls a)))))
 
 ;
 ; Given procedure proc and kernel-list ls, calls proc on each element of ls
@@ -333,7 +333,7 @@
 ;   ==>
 ;       {5 7 #0={9 9 11 8 10 10 . #0#}}
 ;
-; XXX: TRANSPOSE-LISTS
+; XXX: TRANSPOSE-LISTS (SF)
 ;; (define full-map
 ;;   (lambda (proc lss)
 ;;     (let ((x  (transpose-lists lss)))
@@ -398,7 +398,7 @@
 
 ;;     (aux x y)))
 
-;(set-version (list 0.1 0))
-;(set-revision-date 2007 8 5)
+(set-version (list 0.1 0))
+(set-revision-date 2007 8 5)
 
 )
