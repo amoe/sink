@@ -175,7 +175,6 @@
     (lambda (tree)
       (aux '() '() tree))))
 
-; XXX: SF
 (define get-kernel-revisits
   (make-get-revisits kernel-pair? kernel-car kernel-cdr))
 
@@ -245,7 +244,6 @@
 ;
 ; Given a Kernel value, returns an immutable copy of its evaluation structure.
 ;
-; XXX: mutable? (SF)
 (define copy-es-immutable
   (make-es-copier
     mutable? kernel-car kernel-cdr
