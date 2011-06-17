@@ -8,7 +8,13 @@
 (library (subfiles eval)
   (export)
   (import (rnrs)
-          (subfiles revision))
+          (subfiles revision)
+          (subfiles kernel-pair)
+          (subfiles environment)
+          (subfiles operative)
+          (subfiles applicative)
+          (subfiles context)
+          (subfiles error))
 
 ;
 ; Evaluate an expression in an environment, with given youngest enclosing
@@ -16,8 +22,7 @@
 ; used for extraordinary purposes, i.e., Kernel abnormal passing of values
 ; or Kernel keyed dynamic bindings, so most theoretical Kernel contexts don't
 ; actually have to be constructed.
-;
-; XXX
+; XXX: COMBINE (SF)
 ;; (define eval
 ;;   (lambda (exp env context)
 ;;     (cond ((kernel-pair? exp)  (combine (eval (kernel-car exp) env context)
@@ -31,7 +36,7 @@
 ; Evaluate a combination in an environment,
 ; with given youngest enclosing context.
 ;
-; XXX
+; XXX: MAP-EVAL (SF)
 ;; (define combine
 ;;   (lambda (combiner operand-tree env context)
 ;;     (cond ((operative? combiner)

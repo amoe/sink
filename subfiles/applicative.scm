@@ -12,7 +12,8 @@
 ;
 
 (library (subfiles applicative)
-  (export)
+  (export applicative?
+          unwrap)
   (import (rnrs)
           (subfiles object)
           (subfiles revision)

@@ -10,7 +10,9 @@
 ;
 
 (library (subfiles operative)
-  (export action->operative)
+  (export action->operative
+          operative?
+          operate)
   (import (rnrs)
           (subfiles object)
           (subfiles context)

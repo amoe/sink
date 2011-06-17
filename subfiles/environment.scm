@@ -17,7 +17,7 @@
 ;
 
 (library (subfiles environment)
-  (export)
+  (export lookup)
   (import (rnrs)
           (rnrs mutable-pairs)
           (subfiles keyed)

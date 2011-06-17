@@ -55,7 +55,8 @@
           kernel-cdr
           kernel-cons
           kernel-set-cdr!
-          kernel-list)
+          kernel-list
+          kernel-pair?)
   (import (rnrs)
           (rnrs mutable-pairs)
           (subfiles object)
