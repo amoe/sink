@@ -51,7 +51,8 @@
 ;
 
 (library (subfiles kernel-pair)
-  (export)
+  (export kernel-car
+          kernel-cdr)
   (import (rnrs)
           (rnrs mutable-pairs))
 
