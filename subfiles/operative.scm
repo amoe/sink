@@ -11,7 +11,11 @@
 
 (library (subfiles operative)
   (export)
-  (import (rnrs))
+  (import (rnrs)
+          (subfiles object)
+          (subfiles context)
+          (subfiles error)
+          (subfiles revision))
 
 (define action->operative
   (lambda (action)
@@ -23,7 +27,7 @@
           ((action) action))))))
 
 ; XXX
-;; (define operative? (make-object-type-predicate 'operative))
+(define operative? (make-object-type-predicate 'operative))
 
 ;
 ; Calls an operative.
@@ -114,20 +118,20 @@
 ; the Kernel interpreter.
 ;
 ; XXX: ERROR-PASS
-;; (define naive->action
-;;   (lambda (naive name)
-;;     (lambda (operand-tree env context)
-;;       (let ((completed  #f))
-;;         (dynamic-wind
-;;           (lambda () '())
-;;           (lambda () (let ((result  (naive operand-tree)))
-;;                        (set! completed #t)
-;;                        result))
-;;           (lambda () (if (not completed)
-;;                          (error-pass (make-error-descriptor
-;;                                        (list "Error when calling primitive "
-;;                                              name))
-;;                                      context))))))))
+(define naive->action
+  (lambda (naive name)
+    (lambda (operand-tree env context)
+      (let ((completed  #f))
+        (dynamic-wind
+          (lambda () '())
+          (lambda () (let ((result  (naive operand-tree)))
+                       (set! completed #t)
+                       result))
+          (lambda () (if (not completed)
+                         (error-pass (make-error-descriptor
+                                       (list "Error when calling primitive "
+                                             name))
+                                     context))))))))
 
 ;
 ; Given an action, and criteria for admissible operand-lists for that action,
@@ -288,21 +292,20 @@
 ; Uses the same platform-dependent technique to capture Scheme errors as
 ; does naive->action, q.v.
 ;
-;  XXX: ERROR-PASS
-;; (define apply-safely
-;;   (lambda (proc arg-list message context)
-;;     (let ((completed  #f))
-;;       (dynamic-wind
-;;         (lambda () '())
-;;         (lambda () (let ((result  (apply proc arg-list)))
-;;                      (set! completed #t)
-;;                      result))
-;;         (lambda () (if (not completed)
-;;                        (error-pass (make-error-descriptor message)
-;;                                    context)))))))
+(define apply-safely
+  (lambda (proc arg-list message context)
+    (let ((completed  #f))
+      (dynamic-wind
+        (lambda () '())
+        (lambda () (let ((result  (apply proc arg-list)))
+                     (set! completed #t)
+                     result))
+        (lambda () (if (not completed)
+                       (error-pass (make-error-descriptor message)
+                                   context)))))))
 
 
-;; (set-version (list 0.1 0))
-;; (set-revision-date 2007 8 5)
+(set-version (list 0.1 0))
+(set-revision-date 2007 8 5)
 
 )
