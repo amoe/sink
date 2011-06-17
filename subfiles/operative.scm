@@ -13,7 +13,13 @@
   (export action->operative
           operative?
           operate
-          apply-safely)
+          apply-safely
+          unary-predicate->operative
+          binary-predicate->operative
+          metered-action->checked-operative
+          naive->checked-operative
+          metered-naive->checked-operative
+          action->checked-operative)
   (import (rnrs)
           (subfiles object)
           (subfiles context)

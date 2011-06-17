@@ -35,25 +35,25 @@
 
 (define unwrap (lambda (x) (x 'underlying)))
 
-;; (define unary-predicate->applicative
-;;   (lambda x
-;;     (wrap (apply unary-predicate->operative x))))
+(define unary-predicate->applicative
+  (lambda x
+    (wrap (apply unary-predicate->operative x))))
 
-;; (define binary-predicate->applicative
-;;   (lambda x
-;;     (wrap (apply binary-predicate->operative x))))
+(define binary-predicate->applicative
+  (lambda x
+    (wrap (apply binary-predicate->operative x))))
 
-;; (define metered-action->checked-applicative
-;;   (lambda x
-;;     (wrap (apply metered-action->checked-operative x))))
+(define metered-action->checked-applicative
+  (lambda x
+    (wrap (apply metered-action->checked-operative x))))
 
-;; (define naive->checked-applicative
-;;   (lambda x
-;;     (wrap (apply naive->checked-operative x))))
+(define naive->checked-applicative
+  (lambda x
+    (wrap (apply naive->checked-operative x))))
 
-;; (define metered-naive->checked-applicative
-;;   (lambda x
-;;     (wrap (apply metered-naive->checked-operative x))))
+(define metered-naive->checked-applicative
+  (lambda x
+    (wrap (apply metered-naive->checked-operative x))))
 
 ;
 ; Given an action, and criteria for admissible argument-lists for that action,
@@ -61,9 +61,9 @@
 ; and either invokes the given action, or throws an error.  Shorthand for
 ; composition of wrap with action->checked-operative.
 ;
-;; (define action->checked-applicative
-;;   (lambda x
-;;     (wrap (apply action->checked-operative x))))
+(define action->checked-applicative
+  (lambda x
+    (wrap (apply action->checked-operative x))))
 
 ;
 ; Given an action, constructs an applicative whose underlying operative has
