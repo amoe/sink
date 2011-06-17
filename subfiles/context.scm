@@ -58,7 +58,11 @@
 (library (subfiles context)
   (export error-pass)
   (import (rnrs)
-          (rnrs mutable-pairs))
+          (rnrs mutable-pairs)
+          (subfiles object)
+          (subfiles keyed)
+          (subfiles error)
+          (subfiles revision))
 
 (define make-context
   (lambda (receiver parent entry-guards exit-guards
@@ -78,8 +82,7 @@
           ((terminal-context) terminal-context)
           ((alist)            alist))))))
 
-; XXX
-;(define context? (make-object-type-predicate 'continuation))
+(define context? (make-object-type-predicate 'continuation))
 
 ;
 ; A call to make-top-level-context may return multiple times.  The first time,
@@ -169,16 +172,15 @@
 ; given keyed binding.
 ;
 
-; XXX: MAKE-ALIST
-;; (define call-with-keyed-context
-;;   (lambda (proc parent key value)
-;;     (call-with-current-continuation
-;;       (lambda (receiver)
-;;         (let ((error-context     (parent 'error-context))
-;;               (terminal-context  (parent 'terminal-context))
-;;               (alist             (make-alist (parent 'alist) key value)))
-;;           (proc (make-context receiver parent () ()
-;;                               error-context terminal-context alist)))))))
+(define call-with-keyed-context
+  (lambda (proc parent key value)
+    (call-with-current-continuation
+      (lambda (receiver)
+        (let ((error-context     (parent 'error-context))
+              (terminal-context  (parent 'terminal-context))
+              (alist             (make-alist (parent 'alist) key value)))
+          (proc (make-context receiver parent '() '()
+                              error-context terminal-context alist)))))))
 
 ;
 ; Given the internal key for a keyed variable, and a context, looks up the
@@ -186,24 +188,23 @@
 ; if found, or signals an error.
 ;
 
-; XXX: ALIST-LOOKUP
-;; (define context-keyed-lookup
-;;   (lambda (key context)
-;;     (let ((binding  (alist-lookup key (context 'alist))))
-;;       (if (pair? binding)
-;;           (cdr binding)
-;;           (error-pass
-;;             (make-error-descriptor
-;;               "Attempted to look up an unbound keyed dynamic variable"
-;;               (list "in " (list context)))
-;;             context)))))
+(define context-keyed-lookup
+  (lambda (key context)
+    (let ((binding  (alist-lookup key (context 'alist))))
+      (if (pair? binding)
+          (cdr binding)
+          (error-pass
+            (make-error-descriptor
+              "Attempted to look up an unbound keyed dynamic variable"
+              (list "in " (list context)))
+            context)))))
 
 ;
 ; Given an environment and a context, binds symbols root-continuation and
 ; error-continuation in the given environment to the terminal-context and
 ; error-context of the given context.
 ;
-; XXX: ADD-BINDINGS!
+; XXX: CIRCULAR
 ;; (define initialize-context-bindings
 ;;   (lambda (env context)
 ;;     (add-bindings! env 'root-continuation (context 'terminal-context)
@@ -327,8 +328,8 @@
           (set-marks! destination #f)
           ((destination 'receiver) (serial-transform selected value)))))))
 
-;; (set-version (list 0.0 1)
-;;              (list 0.1 1))
-;; (set-revision-date 2009 9 7)
+(set-version (list 0.0 1)
+             (list 0.1 1))
+(set-revision-date 2009 9 7)
 
 )
