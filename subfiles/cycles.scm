@@ -33,7 +33,8 @@
 ;
 
 (library (subfiles cycles)
-  (export)
+  (export kernel-list?
+          simple-map)
   (import (rnrs)
           (rnrs mutable-pairs)
           (subfiles kernel-pair)

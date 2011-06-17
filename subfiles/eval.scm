@@ -14,7 +14,9 @@
           (subfiles operative)
           (subfiles applicative)
           (subfiles context)
-          (subfiles error))
+          (subfiles error)
+          (subfiles cycles)
+          (subfiles object))
 
 ;
 ; Evaluate an expression in an environment, with given youngest enclosing
@@ -22,53 +24,50 @@
 ; used for extraordinary purposes, i.e., Kernel abnormal passing of values
 ; or Kernel keyed dynamic bindings, so most theoretical Kernel contexts don't
 ; actually have to be constructed.
-; XXX: COMBINE (SF)
-;; (define eval
-;;   (lambda (exp env context)
-;;     (cond ((kernel-pair? exp)  (combine (eval (kernel-car exp) env context)
-;;                                         (kernel-cdr exp)
-;;                                         env
-;;                                         context))
-;;           ((symbol? exp)  (lookup exp env context))
-;;           (else exp))))
+(define eval
+  (lambda (exp env context)
+    (cond ((kernel-pair? exp)  (combine (eval (kernel-car exp) env context)
+                                        (kernel-cdr exp)
+                                        env
+                                        context))
+          ((symbol? exp)  (lookup exp env context))
+          (else exp))))
 
 ;
 ; Evaluate a combination in an environment,
 ; with given youngest enclosing context.
 ;
-; XXX: MAP-EVAL (SF)
-;; (define combine
-;;   (lambda (combiner operand-tree env context)
-;;     (cond ((operative? combiner)
-;;              (operate combiner operand-tree env context))
-;;           ((applicative? combiner)
-;;              (combine (unwrap combiner)
-;;                       (map-eval operand-tree env context combiner)
-;;                       env
-;;                       context))
-;;           (else
-;;              (error-pass (make-error-descriptor
-;;                            (list "Tried to call a non-combiner: "
-;;                                  (list combiner)))
-;;                          context)))))
+(define combine
+  (lambda (combiner operand-tree env context)
+    (cond ((operative? combiner)
+             (operate combiner operand-tree env context))
+          ((applicative? combiner)
+             (combine (unwrap combiner)
+                      (map-eval operand-tree env context combiner)
+                      env
+                      context))
+          (else
+             (error-pass (make-error-descriptor
+                           (list "Tried to call a non-combiner: "
+                                 (list combiner)))
+                         context)))))
 
 ;
 ; Evaluate a list of expressions, and return a list of the results, with given
 ; youngest enclosing context; given also the applicative for which the list is
 ; being provided, just in case it's needed for an error message.
 ;
-; XXX: kernel-list (cycles)
-;; (define map-eval
-;;   (lambda (operand-tree env context applicative)
-;;     (if (not (kernel-list? operand-tree))
-;;         (error-pass
-;;           (make-error-descriptor
-;;             (list "Operand tree not a list, passed to "
-;;                   (describe-object applicative)))
-;;           context)
-;;         (simple-map
-;;           (lambda (operand) (eval operand env context))
-;;           operand-tree))))
+(define map-eval
+  (lambda (operand-tree env context applicative)
+    (if (not (kernel-list? operand-tree))
+        (error-pass
+          (make-error-descriptor
+            (list "Operand tree not a list, passed to "
+                  (describe-object applicative)))
+          context)
+        (simple-map
+          (lambda (operand) (eval operand env context))
+          operand-tree))))
 
 (set-version (list 0.0 0)
              (list 0.1 0))
