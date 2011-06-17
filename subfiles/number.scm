@@ -257,7 +257,7 @@
         (and (unary? (kernel-car ls))
              (kernel-bounded-test? (- k 1) (kernel-cdr ls) unary?)))))
 
-; XXX: GET-LIST-METRICS from cycles
+; XXX CIRCULAR: GET-LIST-METRICS (cycles)
 ;; (define kernel-add
 ;;   (lambda (ls)
 
@@ -287,6 +287,7 @@
 ;;                     sum-c
 ;;                     exact-positive-infinity))))))))
 
+; XXX CIRCULAR: GET-LIST-METRICS (cycles)
 ;; (define kernel-multiply
 ;;   (lambda (ls)
 
