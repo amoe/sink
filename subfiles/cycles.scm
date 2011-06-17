@@ -35,12 +35,13 @@
 (library (subfiles cycles)
   (export kernel-list?
           simple-map
-          get-list-metrics)
+          get-list-metrics
+          kernel-list-tail
+          copy-kernel-list->list)
   (import (rnrs)
           (rnrs mutable-pairs)
           (subfiles kernel-pair)
-          (subfiles revision)
-          (subfiles number))
+          (subfiles revision))
 
 ;
 ; Given improper kernel-list ls and nonnegative integer k, returns the (k)th
@@ -339,56 +340,6 @@
               (kernel-encycle! ls a c)
               ls))))))
 
-;
-; Given two structures x and y, either of which may be cyclic, determine
-; whether they are equal?.
-;
-; A table is maintained to keep track of which constituents (kernel-pairs) of
-; x do not have to be compared again to which constituents of y.  The table
-; is a list; each element of this list is a pair, whose first element is a
-; constituent of x, and whose subsequent elements are constituents of y that
-; don't have to be recompared to it.
-;
-; There is no call for this tool to use encapsulated knowledge about the
-; kernel-pair type, because marking individual kernel-pairs wouldn't help.
-;
-(define kernel-equal?
-  (lambda (x y)
-
-    (define table '())
-
-    (define get-row
-      (lambda (x)
-        (let ((row  (assq x table)))
-          (if (pair? row)
-              row
-              (let ((row  (list x)))
-                (set! table (cons row table))
-                row)))))
-
-    (define is-in-row?
-      (lambda (y row)
-        (if (pair? (memq y row))
-            #t
-            (begin
-              (set-cdr! row (cons y (cdr row)))
-              #f))))
-
-    (define aux
-      (lambda (x y)
-        (cond ((and (kernel-pair? x) (kernel-pair? y))
-                 (if (is-in-row? y (get-row x))
-                     #t
-                     (and (aux (kernel-car x) (kernel-car y))
-                          (aux (kernel-cdr x) (kernel-cdr y)))))
-              ((and (kernel-number? x) (kernel-number? y))
-                 (kernel-=? x y))
-              ((and (string? x) (string? y))
-                 (string=? x y))
-              (else
-                 (eq? x y)))))
-
-    (aux x y)))
 
 (set-version (list 0.1 0))
 (set-revision-date 2007 8 5)

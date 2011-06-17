@@ -16,7 +16,8 @@
           (subfiles context)
           (subfiles error)
           (subfiles cycles)
-          (subfiles object))
+          (subfiles object)
+          (subfiles proxy-2))
 
 ;
 ; Evaluate an expression in an environment, with given youngest enclosing

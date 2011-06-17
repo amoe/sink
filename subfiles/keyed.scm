@@ -104,10 +104,6 @@
 ; procedures return alists.
 ;
 
-; XXX CIRCULAR: MAKE-TOP-LEVEL-PORTS-ALIST (port)
-;; (define make-top-level-dynamic-alist
-;;   (lambda ()
-;;      (make-top-level-ports-alist)))
 
 (set-version (list 0.0 1)
              (list 0.1 1))

@@ -22,11 +22,11 @@
           action->checked-operative)
   (import (rnrs)
           (subfiles object)
-          (subfiles context)
           (subfiles error)
           (subfiles revision)
           (subfiles cycles)
-          (subfiles kernel-pair))
+          (subfiles kernel-pair)
+          (subfiles proxy-2))
 
 (define action->operative
   (lambda (action)

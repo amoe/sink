@@ -16,12 +16,16 @@
 
 (library (subfiles number)
   (export exact-positive-infinity
+          exact-negative-infinity
+          inexact-positive-infinity
+          inexact-negative-infinity
           kernel-number?
           kernel-=?)
   (import (rnrs)
           (subfiles object)
           (subfiles kernel-pair)
-          (subfiles revision))
+          (subfiles revision)
+          (subfiles cycles))
 
 (define exact-positive-infinity
   (let ((name  (list #f)))
@@ -157,7 +161,6 @@
 ; The arithmetic operations return a string on error.
 ;
 
-; XXX: All below are predicates from SF
 (define kernel-negate
   (lambda (x)
     (cond ((string? x)  x)
@@ -256,76 +259,74 @@
         (and (unary? (kernel-car ls))
              (kernel-bounded-test? (- k 1) (kernel-cdr ls) unary?)))))
 
-; XXX CIRCULAR: GET-LIST-METRICS (cycles)
-;; (define kernel-add
-;;   (lambda (ls)
+(define kernel-add
+  (lambda (ls)
 
-;;     (define bounded-sum
-;;       (lambda (k ls)
-;;         (kernel-bounded-reduce
-;;           k ls kernel-binary-add 0)))
+    (define bounded-sum
+      (lambda (k ls)
+        (kernel-bounded-reduce
+          k ls kernel-binary-add 0)))
 
-;;     (define bounded-zero?
-;;       (lambda (k ls)
-;;         (kernel-bounded-test? k ls kernel-zero?)))
+    (define bounded-zero?
+      (lambda (k ls)
+        (kernel-bounded-test? k ls kernel-zero?)))
 
-;;     (let* ((metrics  (get-list-metrics ls))
-;;            (a  (caddr metrics))
-;;            (c  (cadddr metrics)))
-;;       (kernel-binary-add
-;;         (bounded-sum a ls)
-;;         (if (zero? c)
-;;             0
-;;             (let* ((cycle  (kernel-list-tail ls a))
-;;                    (sum-c  (bounded-sum c cycle)))
-;;               (if (kernel-zero? sum-c)
-;;                   (if (bounded-zero? c cycle)
-;;                       sum-c
-;;                       "Sum of cycle doesn't converge")
-;;                   (kernel-binary-multiply
-;;                     sum-c
-;;                     exact-positive-infinity))))))))
+    (let* ((metrics  (get-list-metrics ls))
+           (a  (caddr metrics))
+           (c  (cadddr metrics)))
+      (kernel-binary-add
+        (bounded-sum a ls)
+        (if (zero? c)
+            0
+            (let* ((cycle  (kernel-list-tail ls a))
+                   (sum-c  (bounded-sum c cycle)))
+              (if (kernel-zero? sum-c)
+                  (if (bounded-zero? c cycle)
+                      sum-c
+                      "Sum of cycle doesn't converge")
+                  (kernel-binary-multiply
+                    sum-c
+                    exact-positive-infinity))))))))
 
-; XXX CIRCULAR: GET-LIST-METRICS (cycles)
-;; (define kernel-multiply
-;;   (lambda (ls)
+(define kernel-multiply
+  (lambda (ls)
 
-;;     (define bounded-product
-;;       (lambda (k ls)
-;;         (kernel-bounded-reduce
-;;           k ls kernel-binary-multiply 1)))
+    (define bounded-product
+      (lambda (k ls)
+        (kernel-bounded-reduce
+          k ls kernel-binary-multiply 1)))
 
-;;     (define bounded-nonnegative?
-;;       (lambda (k ls)
-;;         (kernel-bounded-test? k ls
-;;           (lambda (x) (kernel->=? x 0)))))
+    (define bounded-nonnegative?
+      (lambda (k ls)
+        (kernel-bounded-test? k ls
+          (lambda (x) (kernel->=? x 0)))))
 
-;;     (define bounded-one?
-;;       (lambda (k ls)
-;;         (kernel-bounded-test? k ls
-;;           (lambda (x) (kernel-=? x 1)))))
+    (define bounded-one?
+      (lambda (k ls)
+        (kernel-bounded-test? k ls
+          (lambda (x) (kernel-=? x 1)))))
 
-;;     (let* ((metrics  (get-list-metrics ls))
-;;            (a  (caddr metrics))
-;;            (c  (cadddr metrics)))
-;;       (kernel-binary-multiply
-;;         (bounded-product a ls)
-;;         (if (zero? c)
-;;             1
-;;             (let* ((cycle      (kernel-list-tail ls a))
-;;                    (product-c  (bounded-product c cycle)))
-;;               (cond ((or (kernel-zero? product-c)
-;;                          (bounded-one? c cycle))
-;;                        product-c)
-;;                     ((or (not (bounded-nonnegative? c cycle))
-;;                          (kernel-=? product-c 1))
-;;                        "Product of cycle doesn't converge")
-;;                     (else
-;;                        (kernel-binary-multiply
-;;                          product-c
-;;                          (if (kernel-<? product-c 1)
-;;                              0
-;;                              exact-positive-infinity))))))))))
+    (let* ((metrics  (get-list-metrics ls))
+           (a  (caddr metrics))
+           (c  (cadddr metrics)))
+      (kernel-binary-multiply
+        (bounded-product a ls)
+        (if (zero? c)
+            1
+            (let* ((cycle      (kernel-list-tail ls a))
+                   (product-c  (bounded-product c cycle)))
+              (cond ((or (kernel-zero? product-c)
+                         (bounded-one? c cycle))
+                       product-c)
+                    ((or (not (bounded-nonnegative? c cycle))
+                         (kernel-=? product-c 1))
+                       "Product of cycle doesn't converge")
+                    (else
+                       (kernel-binary-multiply
+                         product-c
+                         (if (kernel-<? product-c 1)
+                             0
+                             exact-positive-infinity))))))))))
 
 
 (set-version (list 0.0 0)

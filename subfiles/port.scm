@@ -11,7 +11,8 @@
 ;
 
 (library (subfiles port)
-  (export make-top-level-input-port-alist)
+  (export make-top-level-input-port-alist
+          make-top-level-ports-alist)
   (import (rnrs)
           (subfiles object)
           (subfiles keyed)
@@ -83,18 +84,6 @@
       (list "Cannot close " (list kop))
       context)))
 
-;
-; Performs i/o on a Kernel port, or signals an error.
-;
-
-; XXX: SCHEME-READ-OBJECT->KERNEL (kernel-pair)
-;; (define kernel-read
-;;   (lambda (kip context)
-;;     (apply-safely
-;;       (lambda (inport) (scheme-read-object->kernel (read inport)))
-;;       (list (kip 'input-port))
-;;       (list "Failure during read, " (list kip))
-;;       context)))
 
 (define kernel-read-char
   (lambda (kip context)

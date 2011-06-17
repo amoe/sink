@@ -60,7 +60,8 @@
           write-tree
           display-tree
           cyclic-tree?
-          kernel-cadr)
+          kernel-cadr
+          make-es-copier)
   (import (rnrs)
           (rnrs mutable-pairs)
           (subfiles object)
@@ -281,48 +282,6 @@
         (cons key (cons kernel-pair content))))
     kernel-cons
     (lambda (x) x)))
-
-;
-; Given a scheme value presumed to have just been read, returns a mutable
-; Kernel version of the value, by copying its evaluation structure and
-; transforming certain symbols to their Kernel counterparts.
-;
-; XXX CIRCULAR: EXACT-POSITIVE-INFINITY (number)
-;; (define scheme-read-object->kernel
-;;   (make-es-copier
-;;     pair? car cdr
-;;     (lambda (key)
-;;       (let* ((kernel-pair  (kernel-cons '() '()))
-;;              (content      (kernel-pair 'content)))
-;;         (cons key (cons kernel-pair content))))
-;;     kernel-cons
-;;     (lambda (x)
-;;       (if (symbol? x)
-;;           (case x
-;;             ((%ignore) ignore)
-;;             ((%inert)  inert)
-;;             ((%e+infinity)  exact-positive-infinity)
-;;             ((%e-infinity)  exact-negative-infinity)
-;;             ((%i+infinity)  inexact-positive-infinity)
-;;             ((%i-infinity)  inexact-negative-infinity)
-;;             (else      x))
-;;           x))))
-
-;
-; Given a kernel-list, returns a list with the same elements in the same order.
-; The result is guaranteed to be a list (acyclic and made up of pairs), but is
-; not guaranteed to be distinct from the given kernel-list:  if mutables are
-; represented by pairs, the result may be the given kernel-list.  Therefore,
-; this tool should only be used if the resultant list certainly will not be
-; mutated (because mutating the result might mutate the original kernel-list).
-;
-; To guarantee that the result will be distinct from the argument,
-; use  copy-kernel-list->list.
-;
-; XXX CIRCULAR: COPY-KERNEL-LIST->LIST (cycles)
-;; (define kernel-list->list
-;;   (lambda (ls)
-;;     (copy-kernel-list->list ls)))
 
 ;
 ; Given a list, returns a mutable kernel-list with the same elements in the

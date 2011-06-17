@@ -17,7 +17,8 @@
 ;
 
 (library (subfiles environment)
-  (export lookup)
+  (export lookup
+          add-bindings!)
   (import (rnrs)
           (rnrs mutable-pairs)
           (subfiles revision)
@@ -26,7 +27,8 @@
           (subfiles context)
           (subfiles error)
           (subfiles kernel-pair)
-          (subfiles ignore))
+          (subfiles ignore)
+          (subfiles proxy-2))
 
 ;
 ; private constructor/accessors

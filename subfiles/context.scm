@@ -56,15 +56,17 @@
 ;
 
 (library (subfiles context)
-  (export error-pass
-          context-keyed-lookup
-          call-with-keyed-context)
+  (export context-keyed-lookup
+          call-with-keyed-context
+          make-context)
   (import (rnrs)
           (rnrs mutable-pairs)
           (subfiles object)
           (subfiles keyed)
           (subfiles error)
-          (subfiles revision))
+          (subfiles revision)
+          (subfiles proxy-2)
+          (subfiles applicative))
 
 (define make-context
   (lambda (receiver parent entry-guards exit-guards
@@ -85,66 +87,6 @@
           ((alist)            alist))))))
 
 (define context? (make-object-type-predicate 'continuation))
-
-;
-; A call to make-top-level-context may return multiple times.  The first time,
-; it returns a newly allocated top-level context.  On later returns from the
-; same call, it returns the same top-level context again, as long as processing
-; should continue; if it returns nil, processing should terminate.
-;
-;   The top-level context's receiver returns the top-level context from the
-; make-top-level-context call.
-;
-;   The top-level context's error-context's receiver passes its received
-; value to the error-handling procedure (provided as an argument to
-; make-top-level-context), and calls the top-level context's receiver.
-;
-;   The top-level context's terminal-context's receiver returns nil from the
-; make-top-level-context call.
-;
-;   The top-level context's alist is provided by
-; make-top-level-dynamic-alist.
-;    
-; XXX: MAKE-TOP-LEVEL-DYNAMIC-ALIST
-;; (define make-top-level-context
-;;   (lambda (error-handler)
-;;     (call-with-current-continuation
-;;       (lambda (c)
-;;         (letrec* ((receiver
-;;                    (lambda ignore (c normal-context)))
-;;                  (alist
-;;                    (make-top-level-dynamic-alist))
-;;                  (terminal-context
-;;                    (let ((delegate  (make-context
-;;                                       (lambda ignore (c ()))
-;;                                       () () () () () alist)))
-;;                      (lambda (message)
-;;                        (case message
-;;                          ((error-context)     error-context)
-;;                          ((terminal-context)  terminal-context)
-;;                          (else                (delegate message))))))
-;;                  (error-context
-;;                    (let ((delegate  (make-context
-;;                                       (lambda (ed)
-;;                                         (receiver (error-handler ed)))
-;;                                       () () () () () alist)))
-;;                      (lambda (message)
-;;                        (case message
-;;                          ((parent)            terminal-context)
-;;                          ((error-context)     error-context)
-;;                          ((terminal-context)  terminal-context)
-;;                          (else                (delegate message))))))
-;;                  (normal-context
-;;                    (let ((delegate  (make-context
-;;                                       receiver
-;;                                       () () () () () alist)))
-;;                      (lambda (message)
-;;                        (case message
-;;                          ((parent)            terminal-context)
-;;                          ((error-context)     error-context)
-;;                          ((terminal-context)  terminal-context)
-;;                          (else                (delegate message)))))))
-;;           (receiver))))))
 
 ;
 ; call-with-guarded-context takes as arguments a procedure, parent context, and
@@ -202,133 +144,18 @@
             context)))))
 
 ;
-; Given an environment and a context, binds symbols root-continuation and
-; error-continuation in the given environment to the terminal-context and
-; error-context of the given context.
-;
-; XXX: CIRCULAR
-;; (define initialize-context-bindings
-;;   (lambda (env context)
-;;     (add-bindings! env 'root-continuation (context 'terminal-context)
-;;                        'error-continuation (context 'error-context))))
-
-;
 ; Given a context, constructs an applicative that abnormally passes its
 ; argument tree to that context.
 ;
-; XXX CIRCULAR: ACTION->APPLICATIVE (indirect through operative)
-;; (define context->applicative
-;;   (lambda (dest-context)
-;;     (let ((this
-;;             (action->applicative
-;;               (lambda (operand-tree env source-context)
-;;                 (abnormally-pass operand-tree source-context dest-context)))))
-;;       (designate-name-inheritor! (unwrap this) dest-context)
-;;       this)))
+(define context->applicative
+  (lambda (dest-context)
+    (let ((this
+            (action->applicative
+              (lambda (operand-tree env source-context)
+                (abnormally-pass operand-tree source-context dest-context)))))
+      (designate-name-inheritor! (unwrap this) dest-context)
+      this)))
 
-;
-; Given an error descriptor and the context in which the error occurred,
-; abnormally passes the error descriptor to an appropriate error-handling
-; context.
-;
-(define error-pass
-  (lambda (descriptor source)
-    (abnormally-pass descriptor source (source 'error-context))))
-
-;
-; Given a value and the context in which interpreter termination is requested,
-; abnormally passes the value to that context's terminal-context.
-;
-(define terminal-pass
-  (lambda (descriptor source)
-    (abnormally-pass descriptor source (source 'terminal-context))))
-
-;
-; Abnormally passes a value from within a source context to a destination
-; context.
-;
-(define abnormally-pass
-  (letrec (;
-           ; Given a context and a boolean, stores the boolean in the cars of
-           ; the marks of all the ancestors of the context.
-           ;
-           (set-marks!
-             (lambda (context boolean)
-               (if (not (null? context))
-                   (begin
-                     (set-car! (context 'mark) boolean)
-                     (set-marks! (context 'parent) boolean)))))
-           ;
-           ; Given a list of guards and a list of previously selected
-           ; interceptors, and assuming that all ancestors of a target context
-           ; are marked, selects at most one interceptor whose selector
-           ; contains the target and prepends it to the list.  Returns the
-           ; updated list of selected interceptors.
-           ;
-           (select-at-most-one
-             (lambda (guards previously-selected)
-               (cond ((null? guards)
-                        previously-selected)
-                     ((or (null? (caar guards))
-                          (car ((caar guards) 'mark)))
-                        (cons (cdar guards)
-                              previously-selected))
-                     (else (select-at-most-one (cdr guards)
-                                               previously-selected)))))
-           ;
-           ; Given a context that contains the destination, and a list of
-           ; selected entry-interceptors strictly below the given context, and
-           ; assuming that all ancestors of the source are marked, returns a
-           ; list of all selected entry-interceptors for the abnormal pass.
-           ;
-           (select-entry-interceptors
-             (lambda (context previously-selected)
-               (if (or (null? context)
-                       (car (context 'mark)))
-                   previously-selected
-                   (select-entry-interceptors
-                     (context 'parent)
-                     (select-at-most-one
-                       (context 'entry-guards)
-                       previously-selected)))))
-           ;
-           ; Given a context that contains the source, and a list of all
-           ; selected entry-interceptors for the abnormal pass, and assuming
-           ; that all ancestors of the destination are marked, returns a list
-           ; of selected interceptors including exit-interceptors at or above
-           ; the given context.
-           ;
-           (select-exit-interceptors
-             (lambda (context previously-selected)
-               (if (or (null? context)
-                       (car (context 'mark)))
-                   previously-selected
-                   (select-at-most-one
-                     (context 'exit-guards)
-                     (select-exit-interceptors
-                       (context 'parent)
-                       previously-selected)))))
-           ;
-           ; Given a list of interceptors and an abnormally passed value, uses
-           ; the interceptors in series to transform the value; i.e., the value
-           ; is passed as an argument to the first interceptor, the output of
-           ; the first is passed as an argument to the second, etc.
-           ;
-           (serial-transform
-             (lambda (interceptors value)
-               (if (null? interceptors)
-                   value
-                   (serial-transform (cdr interceptors)
-                                     ((car interceptors) value))))))
-
-    (lambda (value source destination)
-      (set-marks! source #t)
-      (let ((selected  (select-entry-interceptors destination '())))
-        (set-marks! source #f)
-        (set-marks! destination #t)
-        (let ((selected  (select-exit-interceptors source selected)))
-          (set-marks! destination #f)
-          ((destination 'receiver) (serial-transform selected value)))))))
 
 (set-version (list 0.0 1)
              (list 0.1 1))
