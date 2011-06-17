@@ -64,7 +64,8 @@
           (subfiles object)
           (subfiles keyed)
           (subfiles error)
-          (subfiles revision))
+          (subfiles revision)
+          (subfiles applicative))
 
 (define make-context
   (lambda (receiver parent entry-guards exit-guards
@@ -216,7 +217,7 @@
 ; Given a context, constructs an applicative that abnormally passes its
 ; argument tree to that context.
 ;
-; XXX: ACTION->APPLICATIVE
+; XXX CIRCULAR: ACTION->APPLICATIVE
 ;; (define context->applicative
 ;;   (lambda (dest-context)
 ;;     (let ((this

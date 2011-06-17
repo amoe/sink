@@ -13,7 +13,8 @@
 
 (library (subfiles applicative)
   (export applicative?
-          unwrap)
+          unwrap
+          action->applicative)
   (import (rnrs)
           (subfiles object)
           (subfiles revision)
