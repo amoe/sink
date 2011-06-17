@@ -20,37 +20,38 @@
   (import (rnrs)
           (subfiles revision)
           (subfiles object)
-          (subfiles kernel-pair))
+          (subfiles kernel-pair)
+          (subfiles applicative))
 
 ; XXX: NAIVE->CHECKED-APPLICATIVE (applicative)
-;; (define make-encapsulation-type
-;;   (let ((counter  0))
-;;     (lambda ()
-;;       (set! counter (+ counter 1))
-;;       (let ((counter  counter))
-;;         (let ((this-type?  (lambda (x)
-;;                              (and (object? x)
-;;                                   (eq? (x 'type) 'encapsulation)
-;;                                   (= (x 'counter) counter)))))
-;;           (kernel-list
-;;             (naive->checked-applicative
-;;               (lambda (operand-tree)
-;;                 (let ((value  (kernel-car operand-tree))
-;;                       (name   (list #t)))
-;;                   (lambda (message)
-;;                     (case message
-;;                       ((type)    'encapsulation)
-;;                       ((name)    name)
-;;                       ((counter) counter)
-;;                       ((value)   value)))))
-;;               "encapsulator"
-;;               1 1)
-;;             (unary-predicate->applicative this-type?)
-;;             (naive->checked-applicative
-;;               (lambda (operand-tree)
-;;                 ((kernel-car operand-tree) 'value))
-;;               "decapsulator"
-;;               1 1 this-type?)))))))
+(define make-encapsulation-type
+  (let ((counter  0))
+    (lambda ()
+      (set! counter (+ counter 1))
+      (let ((counter  counter))
+        (let ((this-type?  (lambda (x)
+                             (and (object? x)
+                                  (eq? (x 'type) 'encapsulation)
+                                  (= (x 'counter) counter)))))
+          (kernel-list
+            (naive->checked-applicative
+              (lambda (operand-tree)
+                (let ((value  (kernel-car operand-tree))
+                      (name   (list #t)))
+                  (lambda (message)
+                    (case message
+                      ((type)    'encapsulation)
+                      ((name)    name)
+                      ((counter) counter)
+                      ((value)   value)))))
+              "encapsulator"
+              1 1)
+            (unary-predicate->applicative this-type?)
+            (naive->checked-applicative
+              (lambda (operand-tree)
+                ((kernel-car operand-tree) 'value))
+              "decapsulator"
+              1 1 this-type?)))))))
 
 (set-version (list 0.0 0)
              (list 0.1 0))

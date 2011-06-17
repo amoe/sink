@@ -14,7 +14,9 @@
 (library (subfiles applicative)
   (export applicative?
           unwrap
-          action->applicative)
+          action->applicative
+          naive->checked-applicative
+          unary-predicate->applicative)
   (import (rnrs)
           (subfiles object)
           (subfiles revision)
