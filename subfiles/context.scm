@@ -216,7 +216,7 @@
 ; Given a context, constructs an applicative that abnormally passes its
 ; argument tree to that context.
 ;
-; XXX CIRCULAR: ACTION->APPLICATIVE
+; XXX CIRCULAR: ACTION->APPLICATIVE (indirect through operative)
 ;; (define context->applicative
 ;;   (lambda (dest-context)
 ;;     (let ((this
