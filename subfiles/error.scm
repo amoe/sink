@@ -12,7 +12,7 @@
 ;
 
 (library (subfiles error)
-  (export)
+  (export make-error-descriptor)
   (import (rnrs)
           (rnrs mutable-pairs)
           (subfiles object)

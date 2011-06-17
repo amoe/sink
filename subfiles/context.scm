@@ -56,7 +56,7 @@
 ;
 
 (library (subfiles context)
-  (export)
+  (export error-pass)
   (import (rnrs)
           (rnrs mutable-pairs))
 

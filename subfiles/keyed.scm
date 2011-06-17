@@ -26,7 +26,9 @@
 
 (library (subfiles keyed)
   (export get-fresh-key
-          make-alist)
+          make-alist
+          merge-alists
+          alist-lookup)
   (import (rnrs)
           (subfiles revision))
 

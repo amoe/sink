@@ -19,7 +19,11 @@
 (library (subfiles environment)
   (export)
   (import (rnrs)
-          (rnrs mutable-pairs))
+          (rnrs mutable-pairs)
+          (subfiles keyed)
+          (subfiles object)
+          (subfiles context)
+          (subfiles error))
 
 ;
 ; private constructor/accessors
@@ -43,59 +47,58 @@
 ;
 
 ; XXX: MERGE-ALISTS
-;; (define make-environment
-;;   (lambda parents
-;;     (internal-make-environment
-;;       (cons (make-empty-frame)
-;;             (apply append
-;;                    (map get-environment-frames
-;;                         parents)))
-;;       (apply merge-alists
-;;              (map get-environment-alist
-;;                   parents)))))
+(define make-environment
+  (lambda parents
+    (internal-make-environment
+      (cons (make-empty-frame)
+            (apply append
+                   (map get-environment-frames
+                        parents)))
+      (apply merge-alists
+             (map get-environment-alist
+                  parents)))))
 
-; XXX: depends on above
+; XXX: GROUND-ENVIRONMENT in ground.scm
 ;; (define make-standard-environment
 ;;   (lambda ()
 ;;     (make-environment ground-environment)))
 
 ; XXX: MAKE-ALIST
-;; (define make-environment-with-keyed-binding
-;;   (lambda (key value parent)
-;;     (internal-make-environment
-;;       (cons (make-empty-frame) (get-environment-frames parent))
-;;       (make-alist (get-environment-alist parent) key value))))
+(define make-environment-with-keyed-binding
+  (lambda (key value parent)
+    (internal-make-environment
+      (cons (make-empty-frame) (get-environment-frames parent))
+      (make-alist (get-environment-alist parent) key value))))
 
 ; XXX: object
-;; (define environment? (make-object-type-predicate 'environment))
+(define environment? (make-object-type-predicate 'environment))
 
-; XXX: ALIST-LOOKUP
-;; (define environment-keyed-lookup
-;;   (lambda (key env context)
-;;     (let ((binding  (alist-lookup key (get-environment-alist env))))
-;;       (if (pair? binding)
-;;           (cdr binding)
-;;           (error-pass
-;;             (make-error-descriptor
-;;               "Attempted to look up an unbound keyed static variable"
-;;               (list "in " (list env)))
-;;             context)))))
+(define environment-keyed-lookup
+  (lambda (key env context)
+    (let ((binding  (alist-lookup key (get-environment-alist env))))
+      (if (pair? binding)
+          (cdr binding)
+          (error-pass
+            (make-error-descriptor
+              "Attempted to look up an unbound keyed static variable"
+              (list "in " (list env)))
+            context)))))
 
 ;
 ; Returns the value bound to name if there is one, otherwise throws an error.
 ;
 ; XXX: ERROR-PASS
-;; (define lookup
-;;   (lambda (name env context)
-;;     (let ((binding  (get-binding-from-frames
-;;                       name (get-environment-frames env))))
-;;       (if (eq? binding #f)
-;;           (error-pass
-;;             (make-error-descriptor
-;;               (list "Unbound symbol: " (symbol->string name))
-;;               (list "in " (describe-object env)))
-;;             context)
-;;           (cdr binding)))))
+(define lookup
+  (lambda (name env context)
+    (let ((binding  (get-binding-from-frames
+                      name (get-environment-frames env))))
+      (if (eq? binding #f)
+          (error-pass
+            (make-error-descriptor
+              (list "Unbound symbol: " (symbol->string name))
+              (list "in " (describe-object env)))
+            context)
+          (cdr binding)))))
 
 ;
 ; Performs a series of local bind operations, mutating existing local bindings
@@ -105,12 +108,11 @@
 ; Each later odd argument is the value to be locally bound to the immediately
 ; preceding name.
 ;
-; XXX: ADD-BINDINGS-TO-FRAME!  (SF)
-;; (define add-bindings!
-;;   (lambda (env . x)
-;;     (apply add-bindings-to-frame!
-;;            (car (get-environment-frames env))
-;;            x)))
+(define add-bindings!
+  (lambda (env . x)
+    (apply add-bindings-to-frame!
+           (car (get-environment-frames env))
+           x)))
 
 ;
 ; Removes local bindings for given symbols.  The first argument is the
@@ -135,7 +137,7 @@
 ; A parameter tree is valid if it is acyclic, it contains no duplicate symbols,
 ; and every leaf is either a symbol, nil, or ignore.
 ;
-; XXX: CYCLIC-TREE?
+; XXX: CYCLIC-TREE? (kernel-pair)
 ;; (define valid-ptree?
 ;;   (lambda (tree)
 
@@ -163,7 +165,7 @@
 ; parameter-tree/object mismatch), returns an error-descriptor to whose
 ; first line " when calling ..." might reasonably be appended.
 ;
-; XXX: VALID-PTREE?
+; XXX: VALID-PTREE? (SF)
 ;; (define match!
 ;;   (lambda (env ptree object)
 
@@ -217,19 +219,19 @@
 ; add-bindings!, except that the first argument is the local frame.
 ;
 ; XXX: OBJECT?
-;; (define add-bindings-to-frame!
-;;   (lambda (frame . x)
-;;     (if (pair? x)
-;;         (let ((name   (car  x))
-;;               (value  (cadr x))
-;;               (x      (cddr x)))
-;;           (if (object? value)
-;;               (suggest-object-name value name))
-;;           (let ((binding  (get-binding-from-frame name frame)))
-;;             (if (eq? binding #f)
-;;                 (set-car! frame (cons (cons name value) (car frame)))
-;;                 (set-cdr! binding value)))
-;;           (apply add-bindings-to-frame! frame x)))))
+(define add-bindings-to-frame!
+  (lambda (frame . x)
+    (if (pair? x)
+        (let ((name   (car  x))
+              (value  (cadr x))
+              (x      (cddr x)))
+          (if (object? value)
+              (suggest-object-name value name))
+          (let ((binding  (get-binding-from-frame name frame)))
+            (if (eq? binding #f)
+                (set-car! frame (cons (cons name value) (car frame)))
+                (set-cdr! binding value)))
+          (apply add-bindings-to-frame! frame x)))))
 
 ;
 ; Deletes bindings for given symbols from given frame.  Arguments as
