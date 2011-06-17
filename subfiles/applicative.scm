@@ -15,7 +15,8 @@
   (export)
   (import (rnrs)
           (subfiles object)
-          (subfiles revision))
+          (subfiles revision)
+          (subfiles operative))
 
 (define wrap
   (lambda (combiner)
@@ -66,11 +67,10 @@
 ; Given an action, constructs an applicative whose underlying operative has
 ; that action.  Shorthand for composition of wrap with action->operative.
 ;
-;; (define action->applicative
-;;   (lambda (action)
-;;     (wrap (action->operative action))))
+(define action->applicative
+  (lambda (action)
+    (wrap (action->operative action))))
 
-; XXX
 (set-version (list 0.0 0)
              (list 0.1 0))
 (set-revision-date 2007 8 4)

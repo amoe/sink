@@ -10,7 +10,7 @@
 ;
 
 (library (subfiles operative)
-  (export)
+  (export action->operative)
   (import (rnrs)
           (subfiles object)
           (subfiles context)
@@ -117,7 +117,6 @@
 ; doesn't intercept error-signals, then errors in the naive action will crash
 ; the Kernel interpreter.
 ;
-; XXX: ERROR-PASS
 (define naive->action
   (lambda (naive name)
     (lambda (operand-tree env context)
