@@ -58,7 +58,8 @@
           kernel-list
           kernel-pair?
           write-tree
-          display-tree)
+          display-tree
+          cyclic-tree?)
   (import (rnrs)
           (rnrs mutable-pairs)
           (subfiles object)

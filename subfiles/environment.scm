@@ -20,10 +20,13 @@
   (export lookup)
   (import (rnrs)
           (rnrs mutable-pairs)
+          (subfiles revision)
           (subfiles keyed)
           (subfiles object)
           (subfiles context)
-          (subfiles error))
+          (subfiles error)
+          (subfiles kernel-pair)
+          (subfiles ignore))
 
 ;
 ; private constructor/accessors
@@ -137,26 +140,25 @@
 ; A parameter tree is valid if it is acyclic, it contains no duplicate symbols,
 ; and every leaf is either a symbol, nil, or ignore.
 ;
-; XXX: CYCLIC-TREE? (kernel-pair)
-;; (define valid-ptree?
-;;   (lambda (tree)
+(define valid-ptree?
+  (lambda (tree)
 
-;;     (define aux ; returns symbols if valid, #f if invalid
-;;       (lambda (tree symbols)
-;;         (cond ((ignore? tree)  symbols)
-;;               ((null? tree)    symbols)
-;;               ((symbol? tree)  (if (pair? (member tree symbols))
-;;                                    #f
-;;                                    (cons tree symbols)))
-;;               ((kernel-pair? tree)
-;;                  (let ((symbols  (aux (kernel-car tree) symbols)))
-;;                    (if (eq? symbols #f)
-;;                        #f
-;;                        (aux (kernel-cdr tree) symbols))))
-;;               (else  #f))))
+    (define aux ; returns symbols if valid, #f if invalid
+      (lambda (tree symbols)
+        (cond ((ignore? tree)  symbols)
+              ((null? tree)    symbols)
+              ((symbol? tree)  (if (pair? (member tree symbols))
+                                   #f
+                                   (cons tree symbols)))
+              ((kernel-pair? tree)
+                 (let ((symbols  (aux (kernel-car tree) symbols)))
+                   (if (eq? symbols #f)
+                       #f
+                       (aux (kernel-cdr tree) symbols))))
+              (else  #f))))
 
-;;     (and (not (cyclic-tree? tree))
-;;          (list? (aux tree ())))))
+    (and (not (cyclic-tree? tree))
+         (list? (aux tree '())))))
 
 ;
 ; Locally binds a parameter-tree to an object.
@@ -166,47 +168,47 @@
 ; first line " when calling ..." might reasonably be appended.
 ;
 ; XXX: VALID-PTREE? (SF)
-;; (define match!
-;;   (lambda (env ptree object)
+(define match!
+  (lambda (env ptree object)
 
-;;     (define emsg ()) ; repository for error-descriptor content
+    (define emsg '()) ; repository for error-descriptor content
 
-;;     ; returns arguments for add-bindings-to-frame!
-;;     (define aux
-;;       (lambda (ptree object args)
-;;         (cond ((kernel-pair? ptree)
-;;                  (if (kernel-pair? object)
-;;                      (aux      (kernel-cdr ptree) (kernel-cdr object)
-;;                           (aux (kernel-car ptree) (kernel-car object) args))
-;;                      (set! emsg
-;;                            (append emsg
-;;                                    (list (list "  mismatch:  " (list ptree)
-;;                                                "  " (list object)))))))
-;;               ((symbol? ptree)  (cons ptree (cons object args)))
-;;               ((null? ptree)   (if (null? object)
-;;                                    args
-;;                                    (set! emsg
-;;                                          (append emsg
-;;                                             (list (list "  mismatch:  ()  "
-;;                                                         (list object)))))))
-;;               (else args)))) ; must be ignore
+    ; returns arguments for add-bindings-to-frame!
+    (define aux
+      (lambda (ptree object args)
+        (cond ((kernel-pair? ptree)
+                 (if (kernel-pair? object)
+                     (aux      (kernel-cdr ptree) (kernel-cdr object)
+                          (aux (kernel-car ptree) (kernel-car object) args))
+                     (set! emsg
+                           (append emsg
+                                   (list (list "  mismatch:  " (list ptree)
+                                               "  " (list object)))))))
+              ((symbol? ptree)  (cons ptree (cons object args)))
+              ((null? ptree)   (if (null? object)
+                                   args
+                                   (set! emsg
+                                         (append emsg
+                                            (list (list "  mismatch:  ()  "
+                                                        (list object)))))))
+              (else args)))) ; must be ignore
 
-;;     (if (not (valid-ptree? ptree))
-;;         (make-error-descriptor "Invalid parameter tree"
-;;                                (list "Parameter tree: " (list ptree)))
-;;         (let ((args  (aux ptree object ())))
-;;           (if (pair? emsg)
-;;               (apply make-error-descriptor
-;;                      "Definiend/object mismatch"
-;;                      (list "Definiend:  " (list ptree))
-;;                      (list "Object:     " (list object))
-;;                      (list)
-;;                      emsg)
-;;               (begin
-;;                 (apply add-bindings-to-frame!
-;;                        (car (get-environment-frames env))
-;;                        args)
-;;                 ()))))))
+    (if (not (valid-ptree? ptree))
+        (make-error-descriptor "Invalid parameter tree"
+                               (list "Parameter tree: " (list ptree)))
+        (let ((args  (aux ptree object '())))
+          (if (pair? emsg)
+              (apply make-error-descriptor
+                     "Definiend/object mismatch"
+                     (list "Definiend:  " (list ptree))
+                     (list "Object:     " (list object))
+                     (list)
+                     emsg)
+              (begin
+                (apply add-bindings-to-frame!
+                       (car (get-environment-frames env))
+                       args)
+                '()))))))
 
 ;
 ; Constructs an empty frame.
@@ -279,8 +281,8 @@
   (lambda (name frame)
     (assoc name (car frame))))
 
-;; (set-version (list 0.0 1)
-;;              (list 0.1 0))
-;; (set-revision-date 2007 8 5)
+(set-version (list 0.0 1)
+             (list 0.1 0))
+(set-revision-date 2007 8 5)
 
 )

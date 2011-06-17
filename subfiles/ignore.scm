@@ -9,7 +9,8 @@
 ;
 
 (library (subfiles ignore)
-  (export ignore)
+  (export ignore
+          ignore?)
   (import (rnrs)
           (subfiles object)
           (subfiles revision))
