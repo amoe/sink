@@ -242,7 +242,6 @@
                    ((exact-negative-infinity? y)  x)
                    (else y))))))
 
-; XXX: KERNEL-CAR
 (define kernel-bounded-reduce
   (lambda (k ls binary identity)
     (cond ((> k 1)  (binary (kernel-car ls)

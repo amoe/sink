@@ -23,7 +23,6 @@
           (subfiles kernel-pair)
           (subfiles applicative))
 
-; XXX: NAIVE->CHECKED-APPLICATIVE (applicative)
 (define make-encapsulation-type
   (let ((counter  0))
     (lambda ()

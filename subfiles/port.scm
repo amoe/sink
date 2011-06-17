@@ -45,7 +45,6 @@
 ; Opens a Kernel port, or signals an error.
 ;
 
-; XXX: APPLY-SAFELY
 (define open-kernel-input-file
   (lambda (name context)
     (make-kernel-input-port

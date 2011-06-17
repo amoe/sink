@@ -103,6 +103,7 @@
 ; here, and which in turn are responsible for calling get-fresh-key.  The other
 ; procedures return alists.
 ;
+
 ; XXX CIRCULAR: MAKE-TOP-LEVEL-PORTS-ALIST (port)
 ;; (define make-top-level-dynamic-alist
 ;;   (lambda ()
