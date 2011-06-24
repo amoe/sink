@@ -36,16 +36,3 @@
 (load "cycles.scm")        ; cyclic structures
 (load "ground.scm")        ; ground environment (uses everything else)
 
-(newline)
-(display "  SINK:  Scheme-based Interpreter for Not-quite Kernel.")   (newline)
-(display "  (An interpreter for an approximate subset of Kernel.)")   (newline)
-(newline)
-(display "  Version ") (display (get-version)) (newline)
-(display "  ") (display (get-revision-date)) (display ".") (newline)
-(display "  Based on the R-1RK.") (newline)
-(newline)
-(display "    Use %ignore and %inert for Kernel #ignore and #inert.") (newline)
-(display "    Major omissions: ")
-(display      " complex numbers; bounds on inexact reals.")           (newline)
-(display "    Various standard combiners haven't been defined.")
-(newline)

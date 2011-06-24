@@ -1,6 +1,7 @@
 (library (subfiles proxy-2)
   (export error-pass
-          abnormally-pass)
+          abnormally-pass
+          terminal-pass)
   (import (rnrs)
           (rnrs mutable-pairs))
 

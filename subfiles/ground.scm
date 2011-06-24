@@ -6,7 +6,8 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (library (subfiles ground)
-  (export )
+  (export make-standard-environment
+          ground-environment)
   (import (rnrs)
           (subfiles revision)
           (subfiles environment)

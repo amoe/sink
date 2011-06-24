@@ -6,7 +6,8 @@
           eval-sequence
           kernel-equal?
           make-top-level-context
-          report-error)
+          report-error
+          initialize-context-bindings)
   (import (rnrs)
           (rnrs mutable-pairs)
           (subfiles port)

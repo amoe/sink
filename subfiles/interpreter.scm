@@ -19,7 +19,14 @@
           rep-loop
           report-error)
   (import (rnrs)
-          (subfiles revision))
+          (subfiles revision)
+          (subfiles ground)
+          (subfiles object)
+          (subfiles proxy-1)
+          (subfiles proxy-2)
+          (subfiles context)
+          (subfiles port)
+          (subfiles eval))
 
 (define interpreter
   (lambda ()
@@ -43,7 +50,7 @@
                              context)))
       (newline)
       (if (eof-object? exp)
-          (terminal-pass () context))
+          (terminal-pass '() context))
       (kernel-write (eval exp env context)
                     (get-kernel-current-output-port context)
                     context)
