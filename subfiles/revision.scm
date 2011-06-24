@@ -45,7 +45,9 @@
 
 (library (subfiles revision)
   (export set-version
-          set-revision-date)
+          set-revision-date
+          get-version
+          get-revision-date)
   (import (rnrs)
           (rnrs mutable-pairs))
 
