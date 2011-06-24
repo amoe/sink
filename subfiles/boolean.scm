@@ -7,7 +7,7 @@
 ;;;;;;;;;;;;
 
 (library (subfiles boolean)
-  (export)
+  (export and?)
   (import (rnrs)
           (subfiles revision))
 

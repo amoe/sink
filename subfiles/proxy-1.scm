@@ -1,5 +1,10 @@
 (library (subfiles proxy-1)
-  (export)
+  (export kernel-list->list
+          kernel-read
+          combiner?
+          any?
+          eval-sequence
+          kernel-equal?)
   (import (rnrs)
           (rnrs mutable-pairs)
           (subfiles port)
@@ -10,7 +15,11 @@
           (subfiles cycles)
           (subfiles context)
           (subfiles environment)
-          (subfiles operative))
+          (subfiles operative)
+          (subfiles object)
+          (subfiles proxy-2)
+          (subfiles error)
+          (subfiles eval))
 
 ;
 ; A call to make-top-level-context may return multiple times.  The first time,
@@ -184,4 +193,31 @@
       (list (kip 'input-port))
       (list "Failure during read, " (list kip))
       context)))
+;
+; Predicates the combiner type.
+;
+(define combiner? (make-object-type-predicate 'operative 'applicative))
+
+;
+; Predicates anything.
+;
+(define any? (lambda x #t))
+
+;
+; Evaluates a sequence of expressions, and returns the last result.
+; Used by both $vau and $sequence.
+;
+(define eval-sequence
+  (lambda (operand-tree env context)
+    (cond ((null? operand-tree)  inert)
+          ((not (kernel-pair? operand-tree))
+             (error-pass
+                (make-error-descriptor
+                  "Non-list operand-tree when calling #[operative $sequence]")
+                context))
+          ((null? (kernel-cdr operand-tree))
+             (eval (kernel-car operand-tree) env context))
+          (else
+             (eval          (kernel-car operand-tree) env context)
+             (eval-sequence (kernel-cdr operand-tree) env context)))))
 )

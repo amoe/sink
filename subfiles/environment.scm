@@ -18,7 +18,12 @@
 
 (library (subfiles environment)
   (export lookup
-          add-bindings!)
+          add-bindings!
+          make-environment-with-keyed-binding
+          environment?
+          environment-keyed-lookup
+          make-environment
+          match!)
   (import (rnrs)
           (rnrs mutable-pairs)
           (subfiles revision)

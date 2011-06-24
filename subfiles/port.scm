@@ -12,7 +12,23 @@
 
 (library (subfiles port)
   (export make-top-level-input-port-alist
-          make-top-level-ports-alist)
+          make-top-level-ports-alist
+          open-kernel-input-file
+          close-kernel-input-port
+          kernel-input-port?
+          kernel-output-port?
+          open-kernel-output-file
+          close-kernel-output-port
+          get-kernel-current-input-port
+          kernel-read-char
+          kernel-peek-char
+          kernel-write
+          get-kernel-current-output-port
+          kernel-display
+          kernel-newline
+          kernel-write-char
+          call-with-input-context
+          call-with-output-context)
   (import (rnrs)
           (subfiles object)
           (subfiles keyed)

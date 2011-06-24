@@ -1,6 +1,27 @@
 (library (subfiles binding)
   (export)
-  (import (rnrs))
+  (import (rnrs)
+          (only (rnrs r5rs) quotient
+                            remainder
+                            modulo)
+          (subfiles environment)
+          (subfiles applicative)
+          (subfiles inert)
+          (subfiles operative)
+          (subfiles eval)
+          (subfiles kernel-pair)
+          (subfiles proxy-1)
+          (subfiles proxy-2)
+          (subfiles error)
+          (subfiles encapsulation)
+          (subfiles object)
+          (subfiles keyed)
+          (subfiles context)
+          (subfiles cycles)
+          (subfiles port)
+          (subfiles boolean)
+          (subfiles number)
+          (subfiles ignore))
 
 ;
 ; Creates bindings for this type in a given environment.
@@ -276,16 +297,6 @@
             context))
         0 1 kernel-input-port?)
 
-      'char-ready?
-      (action->checked-applicative
-        (lambda (operand-tree env context)
-          (kernel-char-ready?
-            (if (null? operand-tree)
-                (get-kernel-current-input-port context)
-                (kernel-car operand-tree))
-            context))
-        0 1 kernel-input-port?)
-
       'write
       (action->checked-applicative
         (lambda (operand-tree env context)
@@ -353,7 +364,7 @@
                  (kip       (open-kernel-input-file name context))
                  (result    (call-with-input-context
                               (lambda (context)
-                                (combine combiner () env context))
+                                (combine combiner '() env context))
                               context
                               kip)))
             (close-kernel-input-port kip context)
@@ -368,7 +379,7 @@
                  (kop       (open-kernel-output-file name context))
                  (result    (call-with-output-context
                               (lambda (context)
-                                (combine combiner () env context))
+                                (combine combiner '() env context))
                               context
                               kop)))
             (close-kernel-output-port kop context)
@@ -456,8 +467,8 @@
               (eval (kernel-list (kernel-car operand-tree) context)
                     env context))
             context
-            ()
-            ()))
+            '()
+            '()))
         1 1 combiner?)
 
       'extend-continuation
@@ -476,7 +487,7 @@
                             (let ((error-context    (parent 'error-context))
                                   (terminal-context (parent 'terminal-context))
                                   (alist            (parent 'alist)))
-                              (c (make-context receiver parent () ()
+                              (c (make-context receiver parent '() '()
                                    error-context terminal-context alist)))))))
                   ((parent 'receiver)
                    (eval (kernel-cons (unwrap appv) operand-tree)
@@ -486,7 +497,7 @@
       'guard-continuation
       (action->checked-applicative
         (lambda (operand-tree env context)
-          (let* ((divert  ())
+          (let* ((divert  '())
                  (convert-clause
                    (lambda (clause)
                      (let ((selector     (kernel-car clause))
@@ -514,11 +525,11 @@
                                  (set! divert outer-context)
                                  (c inner-context))
                                outer-context
-                               ()
+                               '()
                                exit-guards))
                            parent
                            entry-guards
-                           ())))
+                           '())))
                    ((parent 'receiver)
                     operand-tree))))))
         3 3 guards-list? context? guards-list?)
@@ -750,7 +761,7 @@
             (cond ((not (kernel-exact? x))  x)
                   ((exact-positive-infinity? x)  inexact-positive-infinity)
                   ((exact-negative-infinity? x)  inexact-negative-infinity)
-                  (else  (exact->inexact x)))))
+                  (else  (inexact x)))))
         "exact->inexact"
         1 1 kernel-real?)
 
@@ -761,16 +772,9 @@
             (cond ((kernel-exact? x)  x)
                   ((inexact-positive-infinity? x)  exact-positive-infinity)
                   ((inexact-negative-infinity? x)  exact-negative-infinity)
-                  (else  (inexact->exact x)))))
+                  (else  (exact x)))))
         "inexact->exact"
         1 1 kernel-real?)
-
-      'random
-      (naive->checked-applicative
-        (lambda (operand-tree)
-          (random (kernel-car operand-tree)))
-        "random"
-        1 1 (lambda (x) (and (integer? x) (exact? x) (>= x 0))))
 
       'log
       (naive->checked-applicative

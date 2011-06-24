@@ -61,7 +61,13 @@
           display-tree
           cyclic-tree?
           kernel-cadr
-          make-es-copier)
+          make-es-copier
+          copy-es-immutable
+          kernel-caddr
+          kernel-cddr
+          copy-es
+          mutable?
+          kernel-set-car!)
   (import (rnrs)
           (rnrs mutable-pairs)
           (subfiles object)

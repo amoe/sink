@@ -16,7 +16,10 @@
           unwrap
           action->applicative
           naive->checked-applicative
-          unary-predicate->applicative)
+          unary-predicate->applicative
+          binary-predicate->applicative
+          action->checked-applicative
+          wrap)
   (import (rnrs)
           (subfiles object)
           (subfiles revision)

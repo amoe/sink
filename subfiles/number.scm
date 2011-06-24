@@ -20,7 +20,28 @@
           inexact-positive-infinity
           inexact-negative-infinity
           kernel-number?
-          kernel-=?)
+          kernel-=?
+          kernel-real?
+          kernel-exact?
+          kernel-add
+          kernel-binary-add
+          kernel-negate
+          kernel-multiply
+          kernel-binary-multiply
+          kernel-invert
+          kernel-<?
+          kernel-<=?
+          kernel->?
+          kernel->=?
+          infinity?
+          exact-positive-infinity?
+          exact-negative-infinity?
+          inexact-positive-infinity?
+          inexact-negative-infinity?
+          positive-infinity?
+          kernel-zero?
+          negative-infinity?)
+
   (import (rnrs)
           (subfiles object)
           (subfiles kernel-pair)

@@ -1,46 +1,36 @@
-; This file is part of SINK, a Scheme-based Interpreter for Not-quite Kernel
-; Copyright (c) 2009 John N. Shutt
 
-(set-version (list 0.1 3))
-(set-revision-date 2009 9 21)
+; Copyright (c) 2009 John N. Shutt
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Kernel ground environment ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(library (subfiles ground)
+  (export)
+  (import (rnrs)
+          (subfiles revision)
+          (subfiles environment)
+          (subfiles applicative)
+          (subfiles cycles)
+          (subfiles kernel-pair)
+          (subfiles object)
+          (subfiles number)
+          (subfiles proxy-1)
+          (subfiles proxy-2)
+          (subfiles error)
+          (subfiles operative)
+          (subfiles port)
+          (subfiles context)
+          (subfiles inert)
+          (subfiles kernel-pair)
+          (subfiles eval)
+          (subfiles binding))
 
 ;
 ; The ground environment contains bindings for all built-in combiners.
 ;
 
 (define ground-environment (make-environment))
-
-;
-; Evaluates a sequence of expressions, and returns the last result.
-; Used by both $vau and $sequence.
-;
-(define eval-sequence
-  (lambda (operand-tree env context)
-    (cond ((null? operand-tree)  inert)
-          ((not (kernel-pair? operand-tree))
-             (error-pass
-                (make-error-descriptor
-                  "Non-list operand-tree when calling #[operative $sequence]")
-                context))
-          ((null? (kernel-cdr operand-tree))
-             (eval (kernel-car operand-tree) env context))
-          (else
-             (eval          (kernel-car operand-tree) env context)
-             (eval-sequence (kernel-cdr operand-tree) env context)))))
-
-;
-; Predicates the combiner type.
-;
-(define combiner? (make-object-type-predicate 'operative 'applicative))
-
-;
-; Predicates anything.
-;
-(define any? (lambda x #t))
 
 ;
 ; The primitive bindings.
@@ -157,7 +147,7 @@
                                    (aux (eval object env context)))))))
               (aux inert)))
           context
-          (list (cons ()
+          (list (cons '()
                       (lambda (v)
                         (error-pass
                           (make-error-descriptor
@@ -165,7 +155,7 @@
                                   filename "\"")
                             (list "  Value sent: " (list v)))
                           context))))
-          (list (cons ()
+          (list (cons '()
                       (lambda (v)
                         (close-kernel-input-port kip context)
                         v))))))
@@ -236,3 +226,8 @@
                             '$set-version
                             '$set-revision-date)
           ))))
+
+(set-version (list 0.1 3))
+(set-revision-date 2009 9 21)
+
+)

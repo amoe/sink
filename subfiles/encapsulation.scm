@@ -16,7 +16,7 @@
 ;
 
 (library (subfiles encapsulation)
-  (export)
+  (export make-encapsulation-type)
   (import (rnrs)
           (subfiles revision)
           (subfiles object)

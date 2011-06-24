@@ -58,7 +58,10 @@
 (library (subfiles context)
   (export context-keyed-lookup
           call-with-keyed-context
-          make-context)
+          call-with-guarded-context
+          make-context
+          context?
+          context->applicative)
   (import (rnrs)
           (rnrs mutable-pairs)
           (subfiles object)

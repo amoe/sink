@@ -1,10 +1,6 @@
 ; This file is part of SINK, a Scheme-based Interpreter for Not-quite Kernel
 ; Copyright (c) 2009 John N. Shutt
 
-(set-version (list 0.0 0)
-             (list 0.1 0))
-(set-revision-date 2007 8 4)
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;
 ; interpreter top level ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -17,6 +13,14 @@
 ; interpreter ordered its construction, causing the inner let to rebind its
 ; symbol "context" and re-run its body, (if (context? context) ...).
 ;
+
+(library (subfiles interpreter)
+  (export interpreter
+          rep-loop
+          report-error)
+  (import (rnrs)
+          (subfiles revision))
+
 (define interpreter
   (lambda ()
     (let ((env  (make-standard-environment)))
@@ -66,3 +70,9 @@
           (display-tree x (current-output-port))
           (newline)))
     (newline)))
+
+(set-version (list 0.0 0)
+             (list 0.1 0))
+(set-revision-date 2007 8 4)
+
+)

@@ -6,7 +6,8 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (library (subfiles eval)
-  (export)
+  (export eval
+          combine)
   (import (rnrs)
           (subfiles revision)
           (subfiles kernel-pair)
