@@ -23,7 +23,8 @@
           environment?
           environment-keyed-lookup
           make-environment
-          match!)
+          match!
+          remove-bindings!)
   (import (rnrs)
           (rnrs mutable-pairs)
           (subfiles revision)
@@ -66,11 +67,6 @@
       (apply merge-alists
              (map get-environment-alist
                   parents)))))
-
-; XXX: GROUND-ENVIRONMENT in ground.scm
-;; (define make-standard-environment
-;;   (lambda ()
-;;     (make-environment ground-environment)))
 
 (define make-environment-with-keyed-binding
   (lambda (key value parent)

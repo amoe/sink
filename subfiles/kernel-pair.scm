@@ -67,7 +67,8 @@
           kernel-cddr
           copy-es
           mutable?
-          kernel-set-car!)
+          kernel-set-car!
+          list->kernel-list)
   (import (rnrs)
           (rnrs mutable-pairs)
           (subfiles object)

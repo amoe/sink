@@ -51,25 +51,6 @@
       (newline)
       (rep-loop env context))))
 
-;
-; Reports an error, based on a descriptor argument.
-;
-; Ideally, the argument would always be an error-descriptor (cf. file
-; "subfiles/error.scm"); but then, ideally there would be no need for an error
-; handler.  If the argument isn't an error-descriptor, that fact is reported
-; along with the argument.
-;
-(define report-error
-  (lambda (x)
-    (if (error-descriptor? x)
-        (describe-error x)
-        (begin
-          (display " ; error, general handler given non-descriptor object:")
-          (newline)
-          (display " ; ")
-          (display-tree x (current-output-port))
-          (newline)))
-    (newline)))
 
 (set-version (list 0.0 0)
              (list 0.1 0))

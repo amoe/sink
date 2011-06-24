@@ -4,7 +4,9 @@
           combiner?
           any?
           eval-sequence
-          kernel-equal?)
+          kernel-equal?
+          make-top-level-context
+          report-error)
   (import (rnrs)
           (rnrs mutable-pairs)
           (subfiles port)
@@ -220,4 +222,24 @@
           (else
              (eval          (kernel-car operand-tree) env context)
              (eval-sequence (kernel-cdr operand-tree) env context)))))
+
+;
+; Reports an error, based on a descriptor argument.
+;
+; Ideally, the argument would always be an error-descriptor (cf. file
+; "subfiles/error.scm"); but then, ideally there would be no need for an error
+; handler.  If the argument isn't an error-descriptor, that fact is reported
+; along with the argument.
+;
+(define report-error
+  (lambda (x)
+    (if (error-descriptor? x)
+        (describe-error x)
+        (begin
+          (display " ; error, general handler given non-descriptor object:")
+          (newline)
+          (display " ; ")
+          (display-tree x (current-output-port))
+          (newline)))
+    (newline)))
 )

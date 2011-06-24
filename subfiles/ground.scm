@@ -6,7 +6,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (library (subfiles ground)
-  (export)
+  (export )
   (import (rnrs)
           (subfiles revision)
           (subfiles environment)
@@ -32,6 +32,9 @@
 
 (define ground-environment (make-environment))
 
+(define make-standard-environment
+  (lambda ()
+     (make-environment ground-environment)))
 ;
 ; The primitive bindings.
 ;

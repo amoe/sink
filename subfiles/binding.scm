@@ -1,5 +1,19 @@
 (library (subfiles binding)
-  (export)
+  (export
+   bind-applicative-primitives!
+   bind-boolean-primitives!
+   bind-context-primitives!
+   bind-cyclic-primitives!
+   bind-encapsulation-primitives!
+   bind-environment-primitives!
+   bind-error-descriptor-primitives!
+   bind-ignore-primitives!
+   bind-inert-primitives!
+   bind-kernel-pair-primitives!
+   bind-keyed-variable-primitives!
+   bind-number-primitives!
+   bind-operative-primitives!
+   bind-port-primitives!)
   (import (rnrs)
           (only (rnrs r5rs) quotient
                             remainder
