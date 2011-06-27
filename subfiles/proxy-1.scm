@@ -192,7 +192,7 @@
 (define kernel-read
   (lambda (kip context)
     (apply-safely
-      (lambda (inport) (scheme-read-object->kernel (read inport)))
+      (lambda (inport) (scheme-read-object->kernel (read-datum inport)))
       (list (kip 'input-port))
       (list "Failure during read, " (list kip))
       context)))
@@ -243,4 +243,11 @@
           (display-tree x (current-output-port))
           (newline)))
     (newline)))
+
+; Workaround for Mosh blocking (READ) on the terminal.
+(define (string->datum string)
+  (call-with-port (open-string-input-port string) read))
+
+(define (read-datum port)
+  (string->datum (get-line port)))
 )
