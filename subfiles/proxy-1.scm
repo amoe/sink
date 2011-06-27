@@ -249,5 +249,10 @@
   (call-with-port (open-string-input-port string) read))
 
 (define (read-datum port)
-  (string->datum (get-line port)))
+  (let ((line (get-line port)))
+    (if (eof-object? line)
+        line
+        (string->datum line))))
 )
+
+;($define! loop ($lambda (n) ($if (equal? n 0) 42 (loop (- n 1)))))
