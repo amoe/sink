@@ -192,7 +192,7 @@
 (define kernel-read
   (lambda (kip context)
     (apply-safely
-      (lambda (inport) (scheme-read-object->kernel (read-datum inport)))
+      (lambda (inport) (scheme-read-object->kernel (read inport)))
       (list (kip 'input-port))
       (list "Failure during read, " (list kip))
       context)))
