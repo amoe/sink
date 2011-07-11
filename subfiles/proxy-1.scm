@@ -1,3 +1,6 @@
+; This file is part of SINK, a Scheme-based Interpreter for Not-quite Kernel
+; Copyright (c) 2009 John N. Shutt
+
 (library (subfiles proxy-1)
   (export kernel-list->list
           kernel-read
