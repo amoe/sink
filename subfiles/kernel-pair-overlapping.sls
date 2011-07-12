@@ -1,3 +1,4 @@
+#!r6rs
 ; This file is part of SINK, a Scheme-based Interpreter for Not-quite Kernel
 ; Copyright (c) 2009 John N. Shutt
 
@@ -48,13 +49,12 @@
 ; "subfiles/kernel-pair-overlapping.scm"; the file loaded by the interpreter,
 ; called "subfiles/kernel-pair.scm", is a copy of one or the other version.
 ;
-; This is the disjoint version of the type.  A mutable kernel-pair is an object
-; with type 'mutable and attribute 'kar, 'kdr, and 'content, where 'content is
-; a pair whose car and cdr are returned by 'kar and 'kdr.  An immutable
-; kernel-pair is an object with type 'immutable and attributes 'kar and 'kdr.
+; This is the overlapping version of the type.  A mutable kernel-pair is a
+; pair; an immutable kernel-pair is an object with type 'immutable and
+; attributes 'kar and 'kdr.
 ;
 
-(define mutable? (make-object-type-predicate 'mutable))
+(define mutable? pair?)
 
 (define immutable? (make-object-type-predicate 'immutable))
 
@@ -65,11 +65,15 @@
 
 (define kernel-car
   (lambda (x)
-    (x 'kar)))
+    (if (pair? x)
+        (car x)
+        (x 'kar))))
 
 (define kernel-cdr
   (lambda (x)
-    (x 'kdr)))
+    (if (pair? x)
+        (cdr x)
+        (x 'kdr))))
 
 (define kernel-caar (lambda (x) (kernel-car (kernel-car x))))
 (define kernel-cadr (lambda (x) (kernel-car (kernel-cdr x))))
@@ -78,17 +82,7 @@
 (define kernel-cadddr
   (lambda (x) (kernel-car (kernel-cdr (kernel-cdr (kernel-cdr x))))))
 
-(define kernel-cons
-  (lambda (kar kdr)
-    (let ((name     (list #t))
-          (content  (cons kar kdr)))
-      (lambda (message)
-        (case message
-          ((type)    'mutable)
-          ((name)    name)
-          ((kar)     (car content))
-          ((kdr)     (cdr content))
-          ((content) content))))))
+(define kernel-cons  cons)
 
 (define kernel-list
   (lambda x
@@ -96,13 +90,8 @@
         (kernel-cons (car x) (apply kernel-list (cdr x)))
         x)))
 
-(define kernel-set-car!
-  (lambda (kernel-pair kar)
-    (set-car! (kernel-pair 'content) kar)))
-
-(define kernel-set-cdr!
-  (lambda (kernel-pair kdr)
-    (set-cdr! (kernel-pair 'content) kdr)))
+(define kernel-set-car!  set-car!)
+(define kernel-set-cdr!  set-cdr!)
 
 ;
 ; Constructs a procedure that takes as its sole argument a possibly-cyclic
@@ -262,10 +251,9 @@
   (make-es-copier
     kernel-pair? kernel-car kernel-cdr
     (lambda (key)
-      (let* ((kernel-pair  (kernel-cons () ()))
-             (content      (kernel-pair 'content)))
-        (cons key (cons kernel-pair content))))
-    kernel-cons
+      (let ((content  (cons () ())))
+        (cons key (cons content content))))
+    cons
     (lambda (x) x)))
 
 ;
@@ -277,9 +265,8 @@
   (make-es-copier
     pair? car cdr
     (lambda (key)
-      (let* ((kernel-pair  (kernel-cons () ()))
-             (content      (kernel-pair 'content)))
-        (cons key (cons kernel-pair content))))
+      (let ((content  (cons () ())))
+        (cons key (cons content content))))
     kernel-cons
     (lambda (x)
       (if (symbol? x)
@@ -306,7 +293,11 @@
 ;
 (define kernel-list->list
   (lambda (ls)
-    (copy-kernel-list->list ls)))
+    (if (list? ls)
+        ls
+        (bounded-simple-map->list (car (get-list-metrics ls))
+                                  (lambda (x) x)
+                                  ls))))
 
 ;
 ; Given a list, returns a mutable kernel-list with the same elements in the
@@ -316,12 +307,7 @@
 ; this tool should only be used if the given list won't be needed again
 ; (so that if it happens to be mutated, that won't be a problem).
 ;
-(define list->kernel-list
-  (lambda (ls)
-    (if (null? ls)
-        ls
-        (kernel-cons (car ls)
-                     (list->kernel-list (cdr ls))))))
+(define list->kernel-list (lambda (x) x))
 
 ;
 ; Determines whether a tree (i.e., an arbitrary interpreted-language value)
@@ -412,10 +398,6 @@
                            (write-cdr (kernel-cdr x))
                            (display   ")" outport)))))
                 ((object? x)  (display (describe-object x) outport))
-                ((pair? x)
-                   (display "#[misplaced meta-language structure: ")
-                   (write x)
-                   (display "]"))
                 (else  (write-leaf x outport)))))
 
       (write-car x))))
