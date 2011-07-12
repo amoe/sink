@@ -9,7 +9,7 @@ This version was ported to R6RS by David Banks <amoebae@gmail.com> in 2011.  I
 have left the original README intact below.  Please report any bugs with this
 version to me, not John Shutt!
 
-At the moment I believe the port is too buggy even to run the test suite.  This
+There are an unknown amount of bugs.  Most of the tests seem to pass.  This
 is very much only for those who want to mess around and just evaluate a few
 expressions.
 
@@ -21,14 +21,23 @@ the REPL loads):
     $ ikarus --r6rs-script script.sps
     Should dump you into the REPL.       
 
+  Racket 5.1.1
+    $ PLTCOLLECTS=$(pwd): plt-r6rs script.sps
+  However you won't get a REPL prompt yet for some reason.
+
+  Guile 2.0.0.196-0c81a0
+    $ guile -L . -x .sls script.sps
+
+  Ypsilon
+    $ ypsilon --sitelib . script.sps
+  Has the same REPL bug as Racket
+
 What does not work:
 
   Mosh 0.2.7
     Has a debatable bug in READ.
     <http://groups.google.com/group/mosh-developer-discuss/browse_thread/thread/1c39756f4a2b00ae>
-  Ypsilon
 
-Ummmm...
 Patches welcome :)
 
 ==== END EDIT ====
