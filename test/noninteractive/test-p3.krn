@@ -27,10 +27,11 @@
    "for example, under SINK interpreted by MzScheme on a Celeron 2.4 GHz,")
 (newline)
 (display
-  "estimated time to completion is about two millenia.")
+  "estimated time to completion for 10000000000 is about two millenia.")
 (newline)
 (newline)
 
-(force (stream-filter ($lambda (n) (=? n 10000000000))
+;; Even testing for just 100 is still extremely slow, taking ~10s.
+(force (stream-filter ($lambda (n) (=? n 100))
                       (from 0)))
 
