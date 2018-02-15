@@ -21,9 +21,12 @@ the REPL loads):
     $ ikarus --r6rs-script script.sps
     Should dump you into the REPL.       
 
-  Racket 5.1.1
+Racket 5.1.1, 6.7:
+
     $ PLTCOLLECTS=$(pwd): plt-r6rs script.sps
-  However you won't get a REPL prompt yet for some reason.
+
+Should dump you into the REPL.  `PLTCOLLECTS` is needed to get Racket to look
+in the current directory for libraries.
 
   Guile 2.0.0.196-0c81a0
     $ guile -L . -x .sls script.sps

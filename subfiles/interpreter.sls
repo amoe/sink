@@ -49,6 +49,7 @@
 (define rep-loop
   (lambda (env context)
     (display ">> ")
+    (flush-output-port (current-output-port))
     (let ((exp  (kernel-read (get-kernel-current-input-port context)
                              context)))
       (newline)
